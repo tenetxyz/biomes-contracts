@@ -17,7 +17,9 @@ import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { getUniqueEntity } from "../../Utils.sol";
 
-import { getMovableEntityAt, safeGetObjectTypeIdAt, setMovableEntityAt } from "../../utils/EntityUtils.sol";
+import {
+  createEntity, getMovableEntityAt, safeGetObjectTypeIdAt, setMovableEntityAt
+} from "../../utils/EntityUtils.sol";
 import { InventoryUtils } from "../../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../../utils/PlayerUtils.sol";
 import { MoveLib } from "../libraries/MoveLib.sol";
@@ -36,27 +38,17 @@ contract AdminSystem is System {
   }
 
   function adminAddToolToInventory(EntityId owner, ObjectTypeId toolObjectTypeId) public onlyAdmin returns (EntityId) {
-    return InventoryUtils.addEntity(owner, toolObjectTypeId);
-  }
-
-  function adminRemoveFromInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)
-    public
-    onlyAdmin
-  {
-    require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
-    InventoryUtils.removeObject(owner, objectTypeId, numObjectsToRemove);
-  }
-
-  function adminRemoveToolFromInventory(EntityId owner, EntityId tool) public onlyAdmin {
-    InventoryUtils.removeTool(owner, tool, ObjectType._get(tool));
+    EntityId tool = createEntity(toolObjectTypeId);
+    InventoryUtils.addEntity(owner, tool);
+    return tool;
   }
 
   function adminTeleportPlayer(address playerAddress, Vec3 finalCoord) public onlyAdmin {
     EntityId player = Player.get(playerAddress);
-    playerAddress.activate();
+    player.activate();
 
-    Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerAddress.getPosition());
-    EntityId[] memory players = MoveLib._getPlayers(playerAddress, playerCoords);
+    Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(player.getPosition());
+    EntityId[] memory players = MoveLib._getPlayers(player, playerCoords);
     require(!MoveLib._gravityApplies(finalCoord), "Cannot teleport here as gravity applies");
 
     for (uint256 i = 0; i < playerCoords.length; i++) {

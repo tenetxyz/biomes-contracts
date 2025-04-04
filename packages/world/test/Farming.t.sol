@@ -42,7 +42,7 @@ contract FarmingTest is DustTest {
     EntityId dirtEntityId = ReversePosition.get(dirtCoord);
     assertFalse(dirtEntityId.exists(), "Dirt entity already exists");
 
-    EntityId hoeEntityId = TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenHoe);
+    EntityId hoeEntityId = TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
     world.equip(aliceEntityId, hoeEntityId);
 
@@ -69,7 +69,7 @@ contract FarmingTest is DustTest {
     EntityId grassEntityId = ReversePosition.get(grassCoord);
     assertFalse(grassEntityId.exists(), "Grass entity already exists");
 
-    EntityId hoeEntityId = TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenHoe);
+    EntityId hoeEntityId = TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
     world.equip(aliceEntityId, hoeEntityId);
 
@@ -101,7 +101,7 @@ contract FarmingTest is DustTest {
       Vec3 testCoord = dirtCoord + vec3(int32(int256(i)), 0, 0);
       setObjectAtCoord(testCoord, ObjectTypes.Dirt);
 
-      EntityId hoeEntityId = TestInventoryUtils.addTool(aliceEntityId, hoeTypes[i]);
+      EntityId hoeEntityId = TestInventoryUtils.addEntity(aliceEntityId, hoeTypes[i]);
       vm.prank(alice);
       world.equip(aliceEntityId, hoeEntityId);
 
@@ -120,7 +120,7 @@ contract FarmingTest is DustTest {
     Vec3 nonDirtCoord = vec3(playerCoord.x() + 1, 0, playerCoord.z());
     setTerrainAtCoord(nonDirtCoord, ObjectTypes.Stone);
 
-    EntityId hoeEntityId = TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenHoe);
+    EntityId hoeEntityId = TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
     world.equip(aliceEntityId, hoeEntityId);
 
@@ -142,7 +142,7 @@ contract FarmingTest is DustTest {
     world.till(aliceEntityId, dirtCoord);
 
     // Equipped but not a hoe
-    EntityId hoeEntityId = TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.SilverPick);
+    EntityId hoeEntityId = TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.SilverPick);
     vm.prank(alice);
     world.equip(aliceEntityId, hoeEntityId);
 
@@ -157,7 +157,7 @@ contract FarmingTest is DustTest {
     Vec3 dirtCoord = vec3(playerCoord.x() + int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
     setTerrainAtCoord(dirtCoord, ObjectTypes.Dirt);
 
-    EntityId hoeEntityId = TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenHoe);
+    EntityId hoeEntityId = TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
     world.equip(aliceEntityId, hoeEntityId);
 
@@ -172,7 +172,7 @@ contract FarmingTest is DustTest {
     Vec3 dirtCoord = vec3(playerCoord.x() + 1, 0, playerCoord.z());
     setTerrainAtCoord(dirtCoord, ObjectTypes.Dirt);
 
-    EntityId hoeEntityId = TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenHoe);
+    EntityId hoeEntityId = TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
     world.equip(aliceEntityId, hoeEntityId);
 

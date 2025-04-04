@@ -10,6 +10,8 @@ import { EntityId } from "../src/EntityId.sol";
 
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
+import { InventorySlot } from "../src/codegen/tables/InventorySlot.sol";
+import { InventoryTypeSlots } from "../src/codegen/tables/InventoryTypeSlots.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 
 import { Mass } from "../src/codegen/tables/Mass.sol";
@@ -233,9 +235,9 @@ contract CraftTest is DustTest {
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 0);
-    bytes32[] memory toolEntityIds = ReverseInventoryEntity.get(aliceEntityId);
-    assertEq(toolEntityIds.length, 1, "should have 1 tool");
-    EntityId toolEntityId = EntityId.wrap(toolEntityIds[0]);
+    uint16[] memory toolSlots = InventoryTypeSlots.get(aliceEntityId, ObjectTypes.WoodenPick);
+    assertEq(toolSlots.length, 1, "should have 1 tool");
+    EntityId toolEntityId = InventorySlot.getEntityId(aliceEntityId, toolSlots[0]);
     assertTrue(toolEntityId.exists(), "tool entity id should exist");
     ObjectTypeId toolObjectTypeId = ObjectType.get(toolEntityId);
     assertEq(toolObjectTypeId, outputTypes[0], "tool object type should be equal to expected output object type");
@@ -269,9 +271,9 @@ contract CraftTest is DustTest {
     world.craft(aliceEntityId, recipeId);
 
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 4);
-    bytes32[] memory toolEntityIds = ReverseInventoryEntity.get(aliceEntityId);
-    assertEq(toolEntityIds.length, 1, "should have 1 tool");
-    EntityId toolEntityId = EntityId.wrap(toolEntityIds[0]);
+    uint16[] memory toolSlots = InventoryTypeSlots.get(aliceEntityId, outputTypes[0]);
+    assertEq(toolSlots.length, 1, "should have 1 of the crafted tool");
+    EntityId toolEntityId = InventorySlot.getEntityId(aliceEntityId, toolSlots[0]);
     assertTrue(toolEntityId.exists(), "tool entity id should exist");
     ObjectTypeId toolObjectTypeId = ObjectType.get(toolEntityId);
     assertEq(toolObjectTypeId, outputTypes[0], "tool object type should be equal to expected output object type");
@@ -290,9 +292,9 @@ contract CraftTest is DustTest {
     world.craft(aliceEntityId, recipeId);
 
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 0);
-    toolEntityIds = ReverseInventoryEntity.get(aliceEntityId);
-    assertEq(toolEntityIds.length, 2, "should have 2 tools");
-    EntityId toolEntityId2 = EntityId.wrap(toolEntityIds[1]);
+    toolSlots = InventoryTypeSlots.get(aliceEntityId, outputTypes[0]);
+    assertEq(toolSlots.length, 1, "should have 1 of the crafted tool");
+    EntityId toolEntityId2 = InventorySlot.getEntityId(aliceEntityId, toolSlots[0]);
     assertTrue(toolEntityId2.exists(), "tool entity id should exist");
     ObjectTypeId toolObjectTypeId2 = ObjectType.get(toolEntityId2);
     assertEq(toolObjectTypeId2, outputTypes[0], "tool object type should be equal to expected output object type");

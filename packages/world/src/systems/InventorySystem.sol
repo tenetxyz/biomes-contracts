@@ -7,7 +7,7 @@ import { Action } from "../codegen/common.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { ReversePosition } from "../utils/Vec3Storage.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";

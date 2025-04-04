@@ -34,7 +34,7 @@ import { Vec3 } from "../Vec3.sol";
 contract HitMachineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function hitForceField(EntityId caller, Vec3 coord, EntityId tool) public {
+  function hitForceField(EntityId caller, Vec3 coord, uint16 toolSlot) public {
     caller.activate();
     (Vec3 callerCoord,) = caller.requireConnected(coord);
 
@@ -43,7 +43,7 @@ contract HitMachineSystem is System {
     Vec3 forceFieldCoord = Position._get(forceField);
 
     uint128 energyReduction =
-      HitMachineLib._processEnergyReduction(caller, callerCoord, tool, forceField, forceFieldCoord);
+      HitMachineLib._processEnergyReduction(caller, callerCoord, toolSlot, forceField, forceFieldCoord);
 
     ProgramId program = forceField.getProgram();
     bytes memory onHit = abi.encodeCall(IHitHook.onHit, (caller, forceField, energyReduction, ""));
@@ -58,13 +58,13 @@ library HitMachineLib {
   function _processEnergyReduction(
     EntityId caller,
     Vec3 callerCoord,
-    EntityId tool,
+    uint16 toolSlot,
     EntityId forceField,
     Vec3 forceFieldCoord
   ) public returns (uint128) {
     (EnergyData memory machineData,) = updateMachineEnergy(forceField);
     require(machineData.energy > 0, "Cannot hit depleted forcefield");
-    (uint128 toolMassReduction,) = InventoryUtils.useTool(caller, tool, machineData.energy);
+    (uint128 toolMassReduction,) = InventoryUtils.useTool(caller, toolSlot, machineData.energy);
 
     uint128 playerEnergyReduction = 0;
 

@@ -9,6 +9,9 @@ import { EntityId } from "../../src/EntityId.sol";
 import { Vec3 } from "../../src/Vec3.sol";
 
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
+
+import { InventorySlot } from "../../src/codegen/tables/InventorySlot.sol";
+import { InventoryTypeSlots } from "../../src/codegen/tables/InventoryTypeSlots.sol";
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
 
 import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
@@ -18,6 +21,8 @@ import {
   updateMachineEnergy as _updateMachineEnergy,
   updatePlayerEnergy as _updatePlayerEnergy
 } from "../../src/utils/EnergyUtils.sol";
+
+import { createEntity } from "../../src/utils/EntityUtils.sol";
 import {
   destroyForceField as _destroyForceField,
   getForceField as _getForceField,
@@ -73,38 +78,37 @@ library TestInventoryUtils {
   }
 
   function addObject(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToAdd) public asWorld {
-    require(!objectTypeId.isTool(), "To add a tool, you must use addTool");
     InventoryUtils.addObject(ownerEntityId, objectTypeId, numObjectsToAdd);
   }
 
-  function addTool(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) public asWorld returns (EntityId) {
-    return InventoryUtils.addTool(ownerEntityId, toolObjectTypeId);
+  function addEntity(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) public asWorld returns (EntityId) {
+    EntityId entityId = createEntity(toolObjectTypeId);
+    InventoryUtils.addEntity(ownerEntityId, entityId);
+    return entityId;
   }
 
   function removeFromInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)
     public
     asWorld
   {
-    require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
     InventoryUtils.removeObject(ownerEntityId, objectTypeId, numObjectsToRemove);
   }
 
-  function transferAll(EntityId fromEntityId, EntityId toEntityId, ObjectTypeId toObjectTypeId)
-    public
-    asWorld
-    returns (uint256)
-  {
-    return InventoryUtils.transferAll(fromEntityId, toEntityId, toObjectTypeId);
+  function transferAll(EntityId fromEntityId, EntityId toEntityId) public asWorld {
+    InventoryUtils.transferAll(fromEntityId, toEntityId);
   }
 
-  function transfer(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
-    ObjectTypeId dstObjectTypeId,
-    ObjectTypeId transferObjectTypeId,
-    uint16 numObjectsToTransfer
-  ) public asWorld {
-    InventoryUtils.transfer(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
+  function getEntitySlot(EntityId owner, EntityId entityId) public asWorld returns (uint16) {
+    ObjectTypeId objectType = ObjectType._get(entityId);
+    uint16[] memory slots = InventoryTypeSlots._get(owner, objectType);
+    for (uint256 i = 0; i < slots.length; i++) {
+      EntityId slotEntityId = InventorySlot._getEntityId(owner, slots[i]);
+
+      if (slotEntityId == entityId) {
+        return slots[i];
+      }
+    }
+    revert("Entity not found in owner's inventory");
   }
 }
 

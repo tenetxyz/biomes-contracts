@@ -37,8 +37,8 @@ import { Vec3 } from "../Vec3.sol";
 
 // To avoid reaching bytecode size limit
 library BedLib {
-  function transferInventory(EntityId player, EntityId bed, ObjectTypeId objectTypeId) public {
-    InventoryUtils.transferAll(player, bed, objectTypeId);
+  function transferInventory(EntityId player, EntityId bed) public {
+    InventoryUtils.transferAll(player, bed);
   }
 
   function updateSleepingPlayer(EntityId forceField, EntityId player, EntityId bed, Vec3 bedCoord)
@@ -73,7 +73,7 @@ contract BedSystem is System {
 
     PlayerUtils.removePlayerFromBed(player, bed, forceField);
 
-    BedLib.transferInventory(bed, drop, objectTypeId);
+    BedLib.transferInventory(bed, drop);
     // TODO: Should we safecall the program?
   }
 
@@ -97,7 +97,7 @@ contract BedSystem is System {
     // Increase forcefield's drain rate
     Energy._setDrainRate(forceField, machineData.drainRate + PLAYER_ENERGY_DRAIN_RATE);
 
-    BedLib.transferInventory(caller, bed, ObjectTypes.Bed);
+    BedLib.transferInventory(caller, bed);
 
     PlayerUtils.removePlayerFromGrid(caller, callerCoord);
 
@@ -129,7 +129,7 @@ contract BedSystem is System {
     PlayerUtils.removePlayerFromBed(caller, bed, forceField);
     PlayerUtils.addPlayerToGrid(caller, spawnCoord);
 
-    BedLib.transferInventory(bed, caller, ObjectTypes.Player);
+    BedLib.transferInventory(bed, caller);
 
     bytes memory onWakeup = abi.encodeCall(IWakeupHook.onWakeup, (caller, bed, extraData));
     bed.getProgram().callOrRevert(onWakeup);

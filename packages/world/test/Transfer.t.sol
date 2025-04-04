@@ -120,7 +120,7 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
 
     ObjectTypeId transferObjectTypeId = ObjectTypes.WoodenPick;
-    EntityId toolEntityId = TestInventoryUtils.addTool(aliceEntityId, transferObjectTypeId);
+    EntityId toolEntityId = TestInventoryUtils.addEntity(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
@@ -164,8 +164,8 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
 
     ObjectTypeId transferObjectTypeId = ObjectTypes.WoodenPick;
-    EntityId toolEntityId1 = TestInventoryUtils.addTool(chestEntityId, transferObjectTypeId);
-    EntityId toolEntityId2 = TestInventoryUtils.addTool(chestEntityId, transferObjectTypeId);
+    EntityId toolEntityId1 = TestInventoryUtils.addEntity(chestEntityId, transferObjectTypeId);
+    EntityId toolEntityId2 = TestInventoryUtils.addEntity(chestEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 2);
 
@@ -276,7 +276,7 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     transferObjectTypeId = ObjectTypes.WoodenPick;
-    EntityId toolEntityId = TestInventoryUtils.addTool(chestEntityId, transferObjectTypeId);
+    EntityId toolEntityId = TestInventoryUtils.addEntity(chestEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
@@ -302,8 +302,8 @@ contract TransferTest is DustTest {
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
 
-    TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenPick);
-    TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenAxe);
+    TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenPick);
+    TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenAxe);
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");

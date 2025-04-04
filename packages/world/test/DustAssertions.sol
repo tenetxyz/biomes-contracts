@@ -53,7 +53,7 @@ abstract contract DustAssertions is MudTest, GasReporter {
   }
 
   function getObjectAmount(EntityId owner, ObjectTypeId objectType) internal view returns (uint16) {
-    uint16 slots = InventoryTypeSlots.get(owner, objectType);
+    uint16[] memory slots = InventoryTypeSlots.get(owner, objectType);
     if (slots.length == 0) {
       return 0;
     }
@@ -78,9 +78,9 @@ abstract contract DustAssertions is MudTest, GasReporter {
 
     ObjectAmount[] memory oreAmounts = new ObjectAmount[](numOres);
     for (uint256 i = 0; i < ores.length; i++) {
-      uint16 count = InventoryTypeSlots.length(owner, ores[i]);
+      uint256 count = InventoryTypeSlots.length(owner, ores[i]);
       if (count > 0) {
-        oreAmounts[numOres - 1] = ObjectAmount(ores[i], count);
+        oreAmounts[numOres - 1] = ObjectAmount(ores[i], uint16(count));
         numOres--;
       }
     }
@@ -94,16 +94,14 @@ abstract contract DustAssertions is MudTest, GasReporter {
   }
 
   function assertInventoryHasTool(EntityId owner, EntityId toolEntityId, uint16 amount) internal view {
-    uint16 slots = InventoryTypeSlots.get(owner, ObjectType.get(toolEntityId));
-    if (slots.length == 0) {
-      return 0;
-    }
-
+    uint16[] memory slots = InventoryTypeSlots.get(owner, ObjectType.get(toolEntityId));
     bool found;
-    for (uint256 i; i < slots.length; i++) {
-      if (toolEntityId == InventorySlot.getEntityId(owner, slots[i])) {
-        found = true;
-        break;
+    if (slots.length > 0) {
+      for (uint256 i; i < slots.length; i++) {
+        if (toolEntityId == InventorySlot.getEntityId(owner, slots[i])) {
+          found = true;
+          break;
+        }
       }
     }
 

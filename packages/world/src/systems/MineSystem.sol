@@ -97,7 +97,11 @@ contract MineSystem is System {
     return ore;
   }
 
-  function mine(EntityId caller, Vec3 coord, EntityId tool, bytes calldata extraData) public payable returns (EntityId) {
+  function mine(EntityId caller, Vec3 coord, uint16 toolSlot, bytes calldata extraData)
+    public
+    payable
+    returns (EntityId)
+  {
     caller.activate();
     caller.requireConnected(coord);
 
@@ -121,7 +125,7 @@ contract MineSystem is System {
 
     uint128 finalMass;
     {
-      finalMass = MassReductionLib._processMassReduction(caller, mined, tool);
+      finalMass = MassReductionLib._processMassReduction(caller, mined, toolSlot);
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.Bed) {
           // If mining a bed with a sleeping player, kill the player
@@ -189,11 +193,11 @@ contract MineSystem is System {
     return mined;
   }
 
-  function mineUntilDestroyed(EntityId caller, Vec3 coord, bytes calldata extraData) public payable {
+  function mineUntilDestroyed(EntityId caller, Vec3 coord, uint16 toolSlot, bytes calldata extraData) public payable {
     uint128 massLeft = 0;
     do {
       // TODO: factor out the mass reduction logic so it's cheaper to call
-      EntityId entityId = mine(caller, coord, extraData);
+      EntityId entityId = mine(caller, coord, toolSlot, extraData);
       massLeft = Mass._getMass(entityId);
     } while (massLeft > 0);
   }
@@ -245,13 +249,13 @@ library MineLib {
 }
 
 library MassReductionLib {
-  function _processMassReduction(EntityId caller, EntityId mined, EntityId tool) public returns (uint128) {
+  function _processMassReduction(EntityId caller, EntityId mined, uint16 toolSlot) public returns (uint128) {
     uint128 massLeft = Mass._getMass(mined);
     if (massLeft == 0) {
       return massLeft;
     }
 
-    (uint128 toolMassReduction,) = InventoryUtils.useTool(caller, tool, massLeft);
+    (uint128 toolMassReduction,) = InventoryUtils.useTool(caller, toolSlot, massLeft);
 
     // if tool mass reduction is not enough, consume energy from player up to mine energy cost
     if (toolMassReduction < massLeft) {

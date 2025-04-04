@@ -66,11 +66,13 @@ library InventoryUtils {
   }
 
   function addEntity(EntityId owner, EntityId entityId) internal {
-    (uint16 slot, uint16 occupiedIndex) = useEmptySlot(owner);
+    uint16 slot = useEmptySlot(owner);
     ObjectTypeId objectType = ObjectType._get(entityId);
 
     // Set the slot data
-    InventorySlot._set(owner, slot, entityId, objectType, 1, occupiedIndex, 0);
+    InventorySlot._setEntityId(owner, slot, entityId);
+    InventorySlot._setObjectType(owner, slot, objectType);
+    InventorySlot._setAmount(owner, slot, 1);
 
     // Add to type slots for this tool type
     addToTypeSlots(owner, objectType, slot);
@@ -104,7 +106,7 @@ library InventoryUtils {
 
     // If we still have objects to add, try to use empty slots
     while (remaining > 0) {
-      (uint16 slot, uint16 occupiedIndex) = useEmptySlot(owner);
+      uint16 slot = useEmptySlot(owner);
       uint16 toAdd = remaining < stackable ? remaining : stackable;
 
       // Set slot data
@@ -235,7 +237,7 @@ library InventoryUtils {
   }
 
   // Gets a slot to use - either reuses an empty slot or creates a new one - O(1)
-  function useEmptySlot(EntityId owner) private returns (uint16, uint16) {
+  function useEmptySlot(EntityId owner) private returns (uint16) {
     // First try to find an empty slot from the Null objectType
     uint256 numEmptySlots = InventoryTypeSlots._length(owner, ObjectTypes.Null);
     uint16 occupiedIndex = uint16(Inventory._length(owner));
@@ -251,7 +253,7 @@ library InventoryUtils {
       Inventory._push(owner, emptySlot);
       InventorySlot._setOccupiedIndex(owner, emptySlot, occupiedIndex);
 
-      return (emptySlot, occupiedIndex);
+      return emptySlot;
     }
 
     // No empty slots available, try to use a new slot
@@ -265,10 +267,11 @@ library InventoryUtils {
     // Initialize typeIndex as 0 (not in any type slots yet)
     InventorySlot._setTypeIndex(owner, occupiedIndex, 0);
 
-    return (occupiedIndex, occupiedIndex);
+    return occupiedIndex;
   }
 
   // Marks a slot as empty - O(1)
+  // NOTE: this should be private but we need it for admin system
   function recycleSlot(EntityId owner, uint16 slot) private {
     // Get the object type before emptying the slot
     ObjectTypeId objectType = InventorySlot._getObjectType(owner, slot);

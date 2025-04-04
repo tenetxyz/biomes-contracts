@@ -158,24 +158,6 @@ function notify(EntityId player, TransferNotification memory transferNotificatio
   );
 }
 
-function notify(EntityId player, EquipNotification memory equipNotification) {
-  Notification._set(
-    player,
-    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Equip, data: abi.encode(equipNotification) })
-  );
-}
-
-function notify(EntityId player, UnequipNotification memory unequipNotification) {
-  Notification._set(
-    player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Unequip,
-      data: abi.encode(unequipNotification)
-    })
-  );
-}
-
 function notify(EntityId player, SpawnNotification memory spawnNotification) {
   Notification._set(
     player,
