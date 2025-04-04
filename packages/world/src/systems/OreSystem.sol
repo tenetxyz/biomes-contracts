@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { Action } from "../codegen/common.sol";
-import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
+import { Inventory } from "../codegen/tables/Inventory.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { TotalBurnedOreCount } from "../codegen/tables/TotalBurnedOreCount.sol";
@@ -53,7 +53,7 @@ contract OreSystem is System {
     EntityId entityId = ReversePosition._get(oreCoord);
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == ObjectTypes.Air, "Ore coordinate is not air");
-    require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot respawn where there are dropped objects");
+    require(Inventory._length(entityId) == 0, "Cannot respawn where there are dropped objects");
 
     // Remove from mined ore array
     if (minedOreIdx < mined) {

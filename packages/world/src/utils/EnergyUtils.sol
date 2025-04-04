@@ -11,7 +11,7 @@ import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { getEntityAt } from "../utils/EntityUtils.sol";
 
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { LocalEnergyPool, MovablePosition, Position } from "../utils/Vec3Storage.sol";
 

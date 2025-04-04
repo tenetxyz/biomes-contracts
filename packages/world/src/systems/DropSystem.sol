@@ -15,7 +15,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { Vec3 } from "../Vec3.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
-import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { DropNotification, notify } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 
@@ -33,7 +33,7 @@ contract DropSystem is System {
 
   function drop(EntityId caller, ObjectTypeId dropObjectTypeId, uint16 numToDrop, Vec3 coord) public {
     EntityId entityId = dropCommon(caller, coord);
-    transferInventoryNonEntity(caller, entityId, ObjectType._get(entityId), dropObjectTypeId, numToDrop);
+    InventoryUtils.transfer(caller, entityId, ObjectType._get(entityId), dropObjectTypeId, numToDrop);
 
     notify(caller, DropNotification({ dropCoord: coord, dropObjectTypeId: dropObjectTypeId, dropAmount: numToDrop }));
   }

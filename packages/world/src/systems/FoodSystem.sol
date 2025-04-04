@@ -8,7 +8,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 
-import { removeFromInventory } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { MAX_PLAYER_ENERGY } from "../Constants.sol";
@@ -31,7 +31,7 @@ contract FoodSystem is System {
       newEnergy = MAX_PLAYER_ENERGY;
     }
 
-    removeFromInventory(caller, objectTypeId, numToEat);
+    InventoryUtils.removeObject(caller, objectTypeId, numToEat);
 
     Energy._setEnergy(caller, newEnergy);
   }

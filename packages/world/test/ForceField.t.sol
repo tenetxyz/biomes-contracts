@@ -226,7 +226,7 @@ contract ForceFieldTest is DustTest {
 
     // Add block to player's inventory
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     // Build the block
@@ -262,7 +262,7 @@ contract ForceFieldTest is DustTest {
 
     // Add block to player's inventory
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     // Try to build the block, should fail
@@ -297,7 +297,7 @@ contract ForceFieldTest is DustTest {
 
     // Add block to player's inventory
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     // Try to build the block, should fail
@@ -694,7 +694,7 @@ contract ForceFieldTest is DustTest {
 
       // Add block to player's inventory
       ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
-      TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+      TestInventoryUtils.addObject(aliceEntityId, buildObjectTypeId, 1);
       assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
       // Build should succeed
@@ -715,7 +715,7 @@ contract ForceFieldTest is DustTest {
       setTerrainAtCoord(buildCoord2, ObjectTypes.Air);
 
       // Add block to player's inventory
-      TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+      TestInventoryUtils.addObject(aliceEntityId, buildObjectTypeId, 1);
       assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
       // Build should fail

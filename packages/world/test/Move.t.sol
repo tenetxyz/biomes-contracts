@@ -506,8 +506,8 @@ contract MoveTest is DustTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     // Add items to player's inventory to test transfer
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Stone, 10);
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.IronOre, 5);
+    TestInventoryUtils.addObject(aliceEntityId, ObjectTypes.Stone, 10);
+    TestInventoryUtils.addObject(aliceEntityId, ObjectTypes.IronOre, 5);
 
     // Setup a fall path with a specific death point
     uint32 fallHeight = 10; // Well above the PLAYER_FALL_DAMAGE_THRESHOLD
@@ -574,8 +574,8 @@ contract MoveTest is DustTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     // Add items to player's inventory to test transfer
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.IronOre, 8);
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Diamond, 3);
+    TestInventoryUtils.addObject(aliceEntityId, ObjectTypes.IronOre, 8);
+    TestInventoryUtils.addObject(aliceEntityId, ObjectTypes.Diamond, 3);
 
     // Create a horizontal path where player will run out of energy at a specific point
     uint32 pathLength = 5;

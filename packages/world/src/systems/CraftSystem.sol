@@ -22,7 +22,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { Vec3 } from "../Vec3.sol";
 import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { createEntity } from "../utils/EntityUtils.sol";
-import { InventoryUtils, removeAnyFromInventory, removeFromInventory } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { CraftNotification, notify } from "../utils/NotifUtils.sol";
 
 contract CraftSystem is System {
@@ -47,7 +47,7 @@ contract CraftSystem is System {
       ObjectTypeId inputObjectTypeId = ObjectTypeId.wrap(recipeData.inputTypes[i]);
       // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
       // totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
-      removeFromInventory(caller, inputObjectTypeId, recipeData.inputAmounts[i]);
+      InventoryUtils.removeObject(caller, inputObjectTypeId, recipeData.inputAmounts[i]);
     }
 
     // Create the crafted objects

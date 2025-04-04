@@ -20,9 +20,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { EntityId } from "../../EntityId.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
-library InventoryAvailableSlots {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "InventoryAvailab", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000496e76656e746f7279417661696c6162);
+library InventoryTypeSlots {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "InventoryTypeSlo", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000496e76656e746f727954797065536c6f);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0000000100000000000000000000000000000000000000000000000000000000);

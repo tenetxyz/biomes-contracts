@@ -23,7 +23,7 @@ import { updatePlayerEnergy } from "./EnergyUtils.sol";
 
 import { getMovableEntityAt, getOrCreateEntityAt, safeGetObjectTypeIdAt, setMovableEntityAt } from "./EntityUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
-import { transferAllInventoryEntities } from "./InventoryUtils.sol";
+import { InventoryUtils } from "./InventoryUtils.sol";
 
 import { FRAGMENT_SIZE, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
@@ -111,7 +111,7 @@ library PlayerUtils {
       return;
     }
     (EntityId to, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
-    transferAllInventoryEntities(player, to, objectTypeId);
+    InventoryUtils.transferAll(player, to, objectTypeId);
     removePlayerFromGrid(player, coord);
     notify(player, DeathNotification({ deathCoord: coord }));
   }

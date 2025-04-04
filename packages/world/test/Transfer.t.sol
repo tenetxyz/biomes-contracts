@@ -101,7 +101,7 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, numToTransfer);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
@@ -123,7 +123,7 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
 
     ObjectTypeId transferObjectTypeId = ObjectTypes.WoodenPick;
-    EntityId toolEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, transferObjectTypeId);
+    EntityId toolEntityId = TestInventoryUtils.addTool(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
@@ -145,7 +145,7 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Chest;
     uint16 numToTransfer = 10;
-    TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);
+    TestInventoryUtils.addObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
@@ -167,8 +167,8 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
 
     ObjectTypeId transferObjectTypeId = ObjectTypes.WoodenPick;
-    EntityId toolEntityId1 = TestInventoryUtils.addToolToInventory(chestEntityId, transferObjectTypeId);
-    EntityId toolEntityId2 = TestInventoryUtils.addToolToInventory(chestEntityId, transferObjectTypeId);
+    EntityId toolEntityId1 = TestInventoryUtils.addTool(chestEntityId, transferObjectTypeId);
+    EntityId toolEntityId2 = TestInventoryUtils.addTool(chestEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 2);
 
@@ -195,14 +195,14 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     uint16 maxChestInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(
+    TestInventoryUtils.addObject(
       chestEntityId,
       transferObjectTypeId,
       ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxChestInventorySlots
     );
     assertEq(InventorySlots.get(chestEntityId), maxChestInventorySlots, "Inventory slots is not max");
 
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
@@ -217,14 +217,14 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     uint16 maxPlayerInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(
+    TestInventoryUtils.addObject(
       aliceEntityId,
       transferObjectTypeId,
       ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxPlayerInventorySlots
     );
     assertEq(InventorySlots.get(aliceEntityId), maxPlayerInventorySlots, "Inventory slots is not max");
 
-    TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, 1);
+    TestInventoryUtils.addObject(chestEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
@@ -238,7 +238,7 @@ contract TransferTest is DustTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId nonChestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Dirt);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(nonChestEntityId, transferObjectTypeId, 0);
 
@@ -255,7 +255,7 @@ contract TransferTest is DustTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -279,7 +279,7 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     transferObjectTypeId = ObjectTypes.WoodenPick;
-    EntityId toolEntityId = TestInventoryUtils.addToolToInventory(chestEntityId, transferObjectTypeId);
+    EntityId toolEntityId = TestInventoryUtils.addTool(chestEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
@@ -303,10 +303,10 @@ contract TransferTest is DustTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
 
-    TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenPick);
-    TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenAxe);
+    TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenPick);
+    TestInventoryUtils.addTool(aliceEntityId, ObjectTypes.WoodenAxe);
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");
@@ -327,7 +327,7 @@ contract TransferTest is DustTest {
     Vec3 chestCoord = playerCoord + vec3(int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -347,7 +347,7 @@ contract TransferTest is DustTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -362,7 +362,7 @@ contract TransferTest is DustTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -381,7 +381,7 @@ contract TransferTest is DustTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, numToTransfer);
+    TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
@@ -405,7 +405,7 @@ contract TransferTest is DustTest {
     EntityId otherChestEntityId = setObjectAtCoord(chestCoord + vec3(1, 0, 0), ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
-    TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);
+    TestInventoryUtils.addObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, 0);
 
@@ -437,7 +437,7 @@ contract TransferTest is DustTest {
     EntityId otherChestEntityId = setObjectAtCoord(otherChestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
-    TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);
+    TestInventoryUtils.addObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, 0);
 

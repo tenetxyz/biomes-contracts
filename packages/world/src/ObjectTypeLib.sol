@@ -123,6 +123,15 @@ library ObjectTypeLib {
     return self == ObjectTypes.TextSign;
   }
 
+  function isOre(ObjectTypeId self) internal pure returns (bool) {
+    ObjectTypeId[] memory oreTypes = getOreObjectTypes();
+    for (uint256 i = 0; i < oreTypes.length; i++) {
+      if (self == oreTypes[i]) {
+        return true;
+      }
+    }
+  }
+
   function isFood(ObjectTypeId self) internal pure returns (bool) {
     return self.isCrop();
   }

@@ -25,7 +25,7 @@ struct InventorySlotData {
   ObjectTypeId objectType;
   uint16 amount;
   uint16 occupiedIndex;
-  uint16 availableIndex;
+  uint16 typeIndex;
 }
 
 library InventorySlot {
@@ -60,7 +60,7 @@ library InventorySlot {
     fieldNames[1] = "objectType";
     fieldNames[2] = "amount";
     fieldNames[3] = "occupiedIndex";
-    fieldNames[4] = "availableIndex";
+    fieldNames[4] = "typeIndex";
   }
 
   /**
@@ -262,9 +262,9 @@ library InventorySlot {
   }
 
   /**
-   * @notice Get availableIndex.
+   * @notice Get typeIndex.
    */
-  function getAvailableIndex(EntityId owner, uint16 slot) internal view returns (uint16 availableIndex) {
+  function getTypeIndex(EntityId owner, uint16 slot) internal view returns (uint16 typeIndex) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = EntityId.unwrap(owner);
     _keyTuple[1] = bytes32(uint256(slot));
@@ -274,9 +274,9 @@ library InventorySlot {
   }
 
   /**
-   * @notice Get availableIndex.
+   * @notice Get typeIndex.
    */
-  function _getAvailableIndex(EntityId owner, uint16 slot) internal view returns (uint16 availableIndex) {
+  function _getTypeIndex(EntityId owner, uint16 slot) internal view returns (uint16 typeIndex) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = EntityId.unwrap(owner);
     _keyTuple[1] = bytes32(uint256(slot));
@@ -286,25 +286,25 @@ library InventorySlot {
   }
 
   /**
-   * @notice Set availableIndex.
+   * @notice Set typeIndex.
    */
-  function setAvailableIndex(EntityId owner, uint16 slot, uint16 availableIndex) internal {
+  function setTypeIndex(EntityId owner, uint16 slot, uint16 typeIndex) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = EntityId.unwrap(owner);
     _keyTuple[1] = bytes32(uint256(slot));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((availableIndex)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((typeIndex)), _fieldLayout);
   }
 
   /**
-   * @notice Set availableIndex.
+   * @notice Set typeIndex.
    */
-  function _setAvailableIndex(EntityId owner, uint16 slot, uint16 availableIndex) internal {
+  function _setTypeIndex(EntityId owner, uint16 slot, uint16 typeIndex) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = EntityId.unwrap(owner);
     _keyTuple[1] = bytes32(uint256(slot));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((availableIndex)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((typeIndex)), _fieldLayout);
   }
 
   /**
@@ -349,9 +349,9 @@ library InventorySlot {
     ObjectTypeId objectType,
     uint16 amount,
     uint16 occupiedIndex,
-    uint16 availableIndex
+    uint16 typeIndex
   ) internal {
-    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, availableIndex);
+    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, typeIndex);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -373,9 +373,9 @@ library InventorySlot {
     ObjectTypeId objectType,
     uint16 amount,
     uint16 occupiedIndex,
-    uint16 availableIndex
+    uint16 typeIndex
   ) internal {
-    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, availableIndex);
+    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, typeIndex);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -396,7 +396,7 @@ library InventorySlot {
       _table.objectType,
       _table.amount,
       _table.occupiedIndex,
-      _table.availableIndex
+      _table.typeIndex
     );
 
     EncodedLengths _encodedLengths;
@@ -418,7 +418,7 @@ library InventorySlot {
       _table.objectType,
       _table.amount,
       _table.occupiedIndex,
-      _table.availableIndex
+      _table.typeIndex
     );
 
     EncodedLengths _encodedLengths;
@@ -439,7 +439,7 @@ library InventorySlot {
   )
     internal
     pure
-    returns (EntityId entityId, ObjectTypeId objectType, uint16 amount, uint16 occupiedIndex, uint16 availableIndex)
+    returns (EntityId entityId, ObjectTypeId objectType, uint16 amount, uint16 occupiedIndex, uint16 typeIndex)
   {
     entityId = EntityId.wrap(Bytes.getBytes32(_blob, 0));
 
@@ -449,7 +449,7 @@ library InventorySlot {
 
     occupiedIndex = (uint16(Bytes.getBytes2(_blob, 36)));
 
-    availableIndex = (uint16(Bytes.getBytes2(_blob, 38)));
+    typeIndex = (uint16(Bytes.getBytes2(_blob, 38)));
   }
 
   /**
@@ -463,7 +463,7 @@ library InventorySlot {
     EncodedLengths,
     bytes memory
   ) internal pure returns (InventorySlotData memory _table) {
-    (_table.entityId, _table.objectType, _table.amount, _table.occupiedIndex, _table.availableIndex) = decodeStatic(
+    (_table.entityId, _table.objectType, _table.amount, _table.occupiedIndex, _table.typeIndex) = decodeStatic(
       _staticData
     );
   }
@@ -499,9 +499,9 @@ library InventorySlot {
     ObjectTypeId objectType,
     uint16 amount,
     uint16 occupiedIndex,
-    uint16 availableIndex
+    uint16 typeIndex
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(entityId, objectType, amount, occupiedIndex, availableIndex);
+    return abi.encodePacked(entityId, objectType, amount, occupiedIndex, typeIndex);
   }
 
   /**
@@ -515,9 +515,9 @@ library InventorySlot {
     ObjectTypeId objectType,
     uint16 amount,
     uint16 occupiedIndex,
-    uint16 availableIndex
+    uint16 typeIndex
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, availableIndex);
+    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, typeIndex);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

@@ -7,11 +7,7 @@ import { Action } from "../codegen/common.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
-import {
-  transferAllInventoryEntities,
-  transferInventoryEntity,
-  transferInventoryNonEntity
-} from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 
 import { PickupNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
@@ -40,7 +36,7 @@ contract PickupSystem is System {
 
   function pickupAll(EntityId caller, Vec3 coord) public {
     EntityId entityId = pickupCommon(caller, coord);
-    uint256 numTransferred = transferAllInventoryEntities(entityId, caller, ObjectTypes.Player);
+    uint256 numTransferred = InventoryUtils.transferAll(entityId, caller, ObjectTypes.Player);
 
     notify(
       caller,
@@ -54,7 +50,7 @@ contract PickupSystem is System {
 
   function pickup(EntityId caller, ObjectTypeId pickupObjectTypeId, uint16 numToPickup, Vec3 coord) public {
     EntityId entityId = pickupCommon(caller, coord);
-    transferInventoryNonEntity(entityId, caller, ObjectTypes.Player, pickupObjectTypeId, numToPickup);
+    InventoryUtils.transfer(entityId, caller, ObjectTypes.Player, pickupObjectTypeId, numToPickup);
 
     notify(
       caller,
@@ -79,7 +75,7 @@ contract PickupSystem is System {
 
     for (uint256 i = 0; i < pickupObjects.length; i++) {
       ObjectAmount memory pickupObject = pickupObjects[i];
-      transferInventoryNonEntity(entityId, caller, ObjectTypes.Player, pickupObject.objectTypeId, pickupObject.amount);
+      InventoryUtils.transfer(entityId, caller, ObjectTypes.Player, pickupObject.objectTypeId, pickupObject.amount);
 
       notify(
         caller,

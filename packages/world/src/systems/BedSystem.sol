@@ -23,7 +23,7 @@ import { updateMachineEnergy, updateSleepingPlayerEnergy } from "../utils/Energy
 
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { SleepNotification, WakeupNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
@@ -38,7 +38,7 @@ import { Vec3 } from "../Vec3.sol";
 // To avoid reaching bytecode size limit
 library BedLib {
   function transferInventory(EntityId player, EntityId bed, ObjectTypeId objectTypeId) public {
-    transferAllInventoryEntities(player, bed, objectTypeId);
+    InventoryUtils.transferAll(player, bed, objectTypeId);
   }
 
   function updateSleepingPlayer(EntityId forceField, EntityId player, EntityId bed, Vec3 bedCoord)

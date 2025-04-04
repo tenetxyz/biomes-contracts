@@ -11,8 +11,6 @@ import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { EntityProgram } from "../../codegen/tables/EntityProgram.sol";
 
-import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
-import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { Machine, MachineData } from "../../codegen/tables/Machine.sol";
 import { Mass } from "../../codegen/tables/Mass.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";

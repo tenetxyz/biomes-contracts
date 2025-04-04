@@ -31,7 +31,7 @@ contract FoodTest is DustTest {
     // Add some wheat to player inventory
     ObjectTypeId foodType = ObjectTypes.Wheat;
     uint16 foodAmount = 3;
-    TestInventoryUtils.addToInventory(aliceEntityId, foodType, foodAmount);
+    TestInventoryUtils.addObject(aliceEntityId, foodType, foodAmount);
 
     // Get energy value of food
     uint128 foodEnergyValue = ObjectTypeMetadata.getEnergy(foodType);
@@ -53,7 +53,7 @@ contract FoodTest is DustTest {
     // Add non-food item to inventory
     ObjectTypeId nonFoodType = ObjectTypes.Dirt;
     uint16 amount = 3;
-    TestInventoryUtils.addToInventory(aliceEntityId, nonFoodType, amount);
+    TestInventoryUtils.addObject(aliceEntityId, nonFoodType, amount);
 
     // Try to eat non-food item
     vm.prank(alice);
@@ -72,7 +72,7 @@ contract FoodTest is DustTest {
     // Add food to player inventory
     ObjectTypeId foodType = ObjectTypes.Wheat;
     uint16 foodAmount = 3;
-    TestInventoryUtils.addToInventory(aliceEntityId, foodType, foodAmount);
+    TestInventoryUtils.addObject(aliceEntityId, foodType, foodAmount);
 
     // Get energy value of food (which will be > 10)
     uint128 foodEnergyValue = ObjectTypeMetadata.getEnergy(foodType);
@@ -101,7 +101,7 @@ contract FoodTest is DustTest {
     // Add food to player inventory
     ObjectTypeId foodType = ObjectTypes.Wheat;
     uint16 foodAmount = 3;
-    TestInventoryUtils.addToInventory(aliceEntityId, foodType, foodAmount);
+    TestInventoryUtils.addObject(aliceEntityId, foodType, foodAmount);
 
     // Try to eat more than available
     vm.prank(alice);
@@ -116,7 +116,7 @@ contract FoodTest is DustTest {
     // Add food to player inventory
     ObjectTypeId foodType = ObjectTypes.Wheat;
     uint16 initialFoodAmount = 5;
-    TestInventoryUtils.addToInventory(aliceEntityId, foodType, initialFoodAmount);
+    TestInventoryUtils.addObject(aliceEntityId, foodType, initialFoodAmount);
 
     // Eat some food
     uint16 amountToEat = 3;

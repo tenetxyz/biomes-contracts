@@ -10,7 +10,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
-import { removeFromInventory } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { FuelMachineNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
@@ -34,7 +34,7 @@ contract MachineSystem is System {
     ObjectTypeId objectTypeId = ObjectType._get(machine);
     require(ObjectTypeLib.isMachine(objectTypeId), "Can only power machines");
 
-    removeFromInventory(caller, ObjectTypes.Fuel, fuelAmount);
+    InventoryUtils.removeObject(caller, ObjectTypes.Fuel, fuelAmount);
 
     (EnergyData memory machineData,) = updateMachineEnergy(machine);
 

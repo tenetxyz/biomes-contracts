@@ -21,5 +21,5 @@ interface IAdminSystem {
 
   function adminRemoveToolFromInventory(EntityId owner, EntityId tool) external;
 
-  function adminTeleportPlayer(address player, Vec3 finalCoord) external;
+  function adminTeleportPlayer(address playerAddress, Vec3 finalCoord) external;
 }

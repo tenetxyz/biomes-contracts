@@ -68,7 +68,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestInventoryUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
+      TestInventoryUtils.addObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -106,7 +106,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestInventoryUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
+      TestInventoryUtils.addObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -142,7 +142,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Thermoblaster, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestInventoryUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
+      TestInventoryUtils.addObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -183,9 +183,9 @@ contract CraftTest is DustTest {
     ObjectTypeId inputObjectTypeId1 = ObjectTypes.OakPlanks;
     ObjectTypeId inputObjectTypeId2 = ObjectTypes.BirchPlanks;
     ObjectTypeId inputObjectTypeId3 = ObjectTypes.JunglePlanks;
-    TestInventoryUtils.addToInventory(aliceEntityId, inputObjectTypeId1, 2);
-    TestInventoryUtils.addToInventory(aliceEntityId, inputObjectTypeId2, 3);
-    TestInventoryUtils.addToInventory(aliceEntityId, inputObjectTypeId3, 3);
+    TestInventoryUtils.addObject(aliceEntityId, inputObjectTypeId1, 2);
+    TestInventoryUtils.addObject(aliceEntityId, inputObjectTypeId2, 3);
+    TestInventoryUtils.addObject(aliceEntityId, inputObjectTypeId3, 3);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 2);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 3);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 3);
@@ -224,7 +224,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     ObjectTypeId inputObjectTypeId = ObjectTypes.SakuraLog;
-    TestInventoryUtils.addToInventory(aliceEntityId, inputObjectTypeId, 4);
+    TestInventoryUtils.addObject(aliceEntityId, inputObjectTypeId, 4);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 4);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -262,7 +262,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     ObjectTypeId inputObjectTypeId = ObjectTypes.SakuraLog;
-    TestInventoryUtils.addToInventory(aliceEntityId, inputObjectTypeId, 8);
+    TestInventoryUtils.addObject(aliceEntityId, inputObjectTypeId, 8);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 8);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -339,9 +339,9 @@ contract CraftTest is DustTest {
     ObjectTypeId inputObjectTypeId1 = ObjectTypes.OakPlanks;
     ObjectTypeId inputObjectTypeId2 = ObjectTypes.BirchPlanks;
     ObjectTypeId inputObjectTypeId3 = ObjectTypes.JunglePlanks;
-    TestInventoryUtils.addToInventory(aliceEntityId, inputObjectTypeId1, 1);
-    TestInventoryUtils.addToInventory(aliceEntityId, inputObjectTypeId2, 1);
-    TestInventoryUtils.addToInventory(aliceEntityId, inputObjectTypeId3, 1);
+    TestInventoryUtils.addObject(aliceEntityId, inputObjectTypeId1, 1);
+    TestInventoryUtils.addObject(aliceEntityId, inputObjectTypeId2, 1);
+    TestInventoryUtils.addObject(aliceEntityId, inputObjectTypeId3, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 1);
@@ -385,7 +385,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Thermoblaster, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestInventoryUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
+      TestInventoryUtils.addObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -421,7 +421,7 @@ contract CraftTest is DustTest {
     outputAmounts[0] = 4;
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
-    TestInventoryUtils.addToInventory(
+    TestInventoryUtils.addObject(
       aliceEntityId,
       ObjectTypes.OakLog,
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player) * ObjectTypeMetadata.getStackable(ObjectTypes.OakLog)
@@ -451,7 +451,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestInventoryUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
+      TestInventoryUtils.addObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -476,7 +476,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestInventoryUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
+      TestInventoryUtils.addObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -498,7 +498,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestInventoryUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
+      TestInventoryUtils.addObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 

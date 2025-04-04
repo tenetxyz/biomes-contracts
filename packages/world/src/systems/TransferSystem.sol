@@ -8,7 +8,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
 import { transferEnergyToPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { TransferNotification, notify } from "../utils/NotifUtils.sol";
 
 import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
@@ -40,7 +40,7 @@ contract TransferSystem is System {
 
     ObjectTypeId toObjectTypeId = ObjectType._get(to);
 
-    transferInventoryNonEntity(from, to, toObjectTypeId, transferObjectTypeId, numToTransfer);
+    InventoryUtils.transfer(from, to, toObjectTypeId, transferObjectTypeId, numToTransfer);
 
     ObjectAmount[] memory objectAmounts = new ObjectAmount[](1);
     objectAmounts[0] = ObjectAmount(transferObjectTypeId, numToTransfer);

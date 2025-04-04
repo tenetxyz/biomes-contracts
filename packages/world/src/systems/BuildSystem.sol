@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Action, Direction } from "../codegen/common.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
+import { Inventory } from "../codegen/tables/Inventory.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
@@ -22,7 +22,7 @@ import { getUniqueEntity } from "../Utils.sol";
 import { removeEnergyFromLocalPool, transferEnergyToPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getMovableEntityAt, getObjectTypeIdAt, getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
-import { removeFromInventory } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { BuildNotification, MoveNotification, notify } from "../utils/NotifUtils.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -44,7 +44,7 @@ library BuildLib {
   function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) internal returns (EntityId) {
     (EntityId terrain, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
     require(terrainObjectTypeId == ObjectTypes.Air, "Cannot build on a non-air block");
-    require(InventoryObjects._lengthObjectTypeIds(terrain) == 0, "Cannot build where there are dropped objects");
+    require(Inventory._length(terrain) == 0, "Cannot build where there are dropped objects");
     if (!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId)) {
       require(!getMovableEntityAt(coord).exists(), "Cannot build on a movable entity");
     }
@@ -139,7 +139,7 @@ contract BuildSystem is System {
       BuildLib._handleSeed(base, buildObjectTypeId, baseCoord);
     }
 
-    removeFromInventory(caller, buildObjectTypeId, 1);
+    InventoryUtils.removeObject(caller, buildObjectTypeId, 1);
 
     transferEnergyToPool(caller, BUILD_ENERGY_COST);
 

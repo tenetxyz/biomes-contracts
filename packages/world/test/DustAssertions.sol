@@ -14,15 +14,13 @@ import { Vec3 } from "../src/Vec3.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 
-import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { Inventory } from "../src/codegen/tables/Inventory.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
-import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 
 import { Player } from "../src/codegen/tables/Player.sol";
-import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
@@ -52,28 +50,10 @@ abstract contract DustAssertions is MudTest, GasReporter {
     uint128 forceFieldEnergy;
   }
 
-  function inventoryObjectsHasObjectType(EntityId ownerEntityId, ObjectTypeId objectTypeId)
-    internal
-    view
-    returns (bool)
-  {
+  function inventoryHasObjectType(EntityId ownerEntityId, ObjectTypeId objectTypeId) internal view returns (bool) {
     uint16[] memory inventoryObjectTypes = InventoryObjects.get(ownerEntityId);
     for (uint256 i = 0; i < inventoryObjectTypes.length; i++) {
       if (inventoryObjectTypes[i] == ObjectTypeId.unwrap(objectTypeId)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function reverseInventoryEntityHasEntity(EntityId ownerEntityId, EntityId inventoryEntityId)
-    internal
-    view
-    returns (bool)
-  {
-    bytes32[] memory inventoryEntityIds = ReverseInventoryEntity.get(ownerEntityId);
-    for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-      if (inventoryEntityIds[i] == EntityId.unwrap(inventoryEntityId)) {
         return true;
       }
     }

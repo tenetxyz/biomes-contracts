@@ -390,7 +390,7 @@ contract MineTest is DustTest {
     ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction - 1);
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    TestInventoryUtils.addToInventory(
+    TestInventoryUtils.addObject(
       aliceEntityId,
       mineObjectTypeId,
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player) * ObjectTypeMetadata.getStackable(mineObjectTypeId)

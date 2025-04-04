@@ -197,8 +197,7 @@ export default defineWorld({
     Inventory: {
       schema: {
         owner: "EntityId",
-        slotsUsed: "uint16",
-        occupiedSlots: "uint16[]",
+        occupiedSlots: "uint16[]", // Slots with at least 1 item
       },
       key: ["owner"],
     },
@@ -210,7 +209,7 @@ export default defineWorld({
         objectType: "ObjectTypeId",
         amount: "uint16",
         occupiedIndex: "uint16",
-        availableIndex: "uint16", // Index in the InventoryAvailableSlots array (type(uint16).max if not in available slots)
+        typeIndex: "uint16", // Index in InventoryTypeSlots
       },
       key: ["owner", "slot"],
     },
@@ -222,42 +221,13 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    InventoryAvailableSlots: {
+    InventoryTypeSlots: {
       schema: {
         owner: "EntityId",
         objectType: "ObjectTypeId",
-        slots: "uint16[]",
+        slots: "uint16[]", // All slots containing this object type
       },
       key: ["owner", "objectType"],
-    },
-    InventorySlots: {
-      schema: {
-        ownerEntityId: "EntityId",
-        numSlotsUsed: "uint16",
-      },
-      key: ["ownerEntityId"],
-    },
-    InventoryObjects: {
-      schema: {
-        ownerEntityId: "EntityId",
-        objectTypeIds: "uint16[]",
-      },
-      key: ["ownerEntityId"],
-    },
-    InventoryCount: {
-      schema: {
-        ownerEntityId: "EntityId",
-        objectTypeId: "ObjectTypeId",
-        count: "uint16",
-      },
-      key: ["ownerEntityId", "objectTypeId"],
-    },
-    ReverseInventoryEntity: {
-      schema: {
-        ownerEntityId: "EntityId",
-        entityIds: "bytes32[]",
-      },
-      key: ["ownerEntityId"],
     },
     // ------------------------------------------------------------
     // Movable positions
