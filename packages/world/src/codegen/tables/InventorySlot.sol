@@ -24,6 +24,8 @@ struct InventorySlotData {
   EntityId entityId;
   ObjectTypeId objectType;
   uint16 amount;
+  uint16 occupiedIndex;
+  uint16 availableIndex;
 }
 
 library InventorySlot {
@@ -31,12 +33,12 @@ library InventorySlot {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000496e76656e746f7279536c6f74000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0024030020020200000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0028050020020202020000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32, uint16)
   Schema constant _keySchema = Schema.wrap(0x002202005f010000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes32, uint16, uint16)
-  Schema constant _valueSchema = Schema.wrap(0x002403005f010100000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32, uint16, uint16, uint16, uint16)
+  Schema constant _valueSchema = Schema.wrap(0x002805005f010101010000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -53,10 +55,12 @@ library InventorySlot {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](3);
+    fieldNames = new string[](5);
     fieldNames[0] = "entityId";
     fieldNames[1] = "objectType";
     fieldNames[2] = "amount";
+    fieldNames[3] = "occupiedIndex";
+    fieldNames[4] = "availableIndex";
   }
 
   /**
@@ -212,6 +216,98 @@ library InventorySlot {
   }
 
   /**
+   * @notice Get occupiedIndex.
+   */
+  function getOccupiedIndex(EntityId owner, uint16 slot) internal view returns (uint16 occupiedIndex) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = EntityId.unwrap(owner);
+    _keyTuple[1] = bytes32(uint256(slot));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
+   * @notice Get occupiedIndex.
+   */
+  function _getOccupiedIndex(EntityId owner, uint16 slot) internal view returns (uint16 occupiedIndex) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = EntityId.unwrap(owner);
+    _keyTuple[1] = bytes32(uint256(slot));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
+   * @notice Set occupiedIndex.
+   */
+  function setOccupiedIndex(EntityId owner, uint16 slot, uint16 occupiedIndex) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = EntityId.unwrap(owner);
+    _keyTuple[1] = bytes32(uint256(slot));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((occupiedIndex)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set occupiedIndex.
+   */
+  function _setOccupiedIndex(EntityId owner, uint16 slot, uint16 occupiedIndex) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = EntityId.unwrap(owner);
+    _keyTuple[1] = bytes32(uint256(slot));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((occupiedIndex)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get availableIndex.
+   */
+  function getAvailableIndex(EntityId owner, uint16 slot) internal view returns (uint16 availableIndex) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = EntityId.unwrap(owner);
+    _keyTuple[1] = bytes32(uint256(slot));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
+   * @notice Get availableIndex.
+   */
+  function _getAvailableIndex(EntityId owner, uint16 slot) internal view returns (uint16 availableIndex) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = EntityId.unwrap(owner);
+    _keyTuple[1] = bytes32(uint256(slot));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
+   * @notice Set availableIndex.
+   */
+  function setAvailableIndex(EntityId owner, uint16 slot, uint16 availableIndex) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = EntityId.unwrap(owner);
+    _keyTuple[1] = bytes32(uint256(slot));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((availableIndex)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set availableIndex.
+   */
+  function _setAvailableIndex(EntityId owner, uint16 slot, uint16 availableIndex) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = EntityId.unwrap(owner);
+    _keyTuple[1] = bytes32(uint256(slot));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((availableIndex)), _fieldLayout);
+  }
+
+  /**
    * @notice Get the full data.
    */
   function get(EntityId owner, uint16 slot) internal view returns (InventorySlotData memory _table) {
@@ -246,8 +342,16 @@ library InventorySlot {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(EntityId owner, uint16 slot, EntityId entityId, ObjectTypeId objectType, uint16 amount) internal {
-    bytes memory _staticData = encodeStatic(entityId, objectType, amount);
+  function set(
+    EntityId owner,
+    uint16 slot,
+    EntityId entityId,
+    ObjectTypeId objectType,
+    uint16 amount,
+    uint16 occupiedIndex,
+    uint16 availableIndex
+  ) internal {
+    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, availableIndex);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -262,8 +366,16 @@ library InventorySlot {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(EntityId owner, uint16 slot, EntityId entityId, ObjectTypeId objectType, uint16 amount) internal {
-    bytes memory _staticData = encodeStatic(entityId, objectType, amount);
+  function _set(
+    EntityId owner,
+    uint16 slot,
+    EntityId entityId,
+    ObjectTypeId objectType,
+    uint16 amount,
+    uint16 occupiedIndex,
+    uint16 availableIndex
+  ) internal {
+    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, availableIndex);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -279,7 +391,13 @@ library InventorySlot {
    * @notice Set the full data using the data struct.
    */
   function set(EntityId owner, uint16 slot, InventorySlotData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.entityId, _table.objectType, _table.amount);
+    bytes memory _staticData = encodeStatic(
+      _table.entityId,
+      _table.objectType,
+      _table.amount,
+      _table.occupiedIndex,
+      _table.availableIndex
+    );
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -295,7 +413,13 @@ library InventorySlot {
    * @notice Set the full data using the data struct.
    */
   function _set(EntityId owner, uint16 slot, InventorySlotData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.entityId, _table.objectType, _table.amount);
+    bytes memory _staticData = encodeStatic(
+      _table.entityId,
+      _table.objectType,
+      _table.amount,
+      _table.occupiedIndex,
+      _table.availableIndex
+    );
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -312,12 +436,20 @@ library InventorySlot {
    */
   function decodeStatic(
     bytes memory _blob
-  ) internal pure returns (EntityId entityId, ObjectTypeId objectType, uint16 amount) {
+  )
+    internal
+    pure
+    returns (EntityId entityId, ObjectTypeId objectType, uint16 amount, uint16 occupiedIndex, uint16 availableIndex)
+  {
     entityId = EntityId.wrap(Bytes.getBytes32(_blob, 0));
 
     objectType = ObjectTypeId.wrap(uint16(Bytes.getBytes2(_blob, 32)));
 
     amount = (uint16(Bytes.getBytes2(_blob, 34)));
+
+    occupiedIndex = (uint16(Bytes.getBytes2(_blob, 36)));
+
+    availableIndex = (uint16(Bytes.getBytes2(_blob, 38)));
   }
 
   /**
@@ -331,7 +463,9 @@ library InventorySlot {
     EncodedLengths,
     bytes memory
   ) internal pure returns (InventorySlotData memory _table) {
-    (_table.entityId, _table.objectType, _table.amount) = decodeStatic(_staticData);
+    (_table.entityId, _table.objectType, _table.amount, _table.occupiedIndex, _table.availableIndex) = decodeStatic(
+      _staticData
+    );
   }
 
   /**
@@ -363,9 +497,11 @@ library InventorySlot {
   function encodeStatic(
     EntityId entityId,
     ObjectTypeId objectType,
-    uint16 amount
+    uint16 amount,
+    uint16 occupiedIndex,
+    uint16 availableIndex
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(entityId, objectType, amount);
+    return abi.encodePacked(entityId, objectType, amount, occupiedIndex, availableIndex);
   }
 
   /**
@@ -377,9 +513,11 @@ library InventorySlot {
   function encode(
     EntityId entityId,
     ObjectTypeId objectType,
-    uint16 amount
+    uint16 amount,
+    uint16 occupiedIndex,
+    uint16 availableIndex
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(entityId, objectType, amount);
+    bytes memory _staticData = encodeStatic(entityId, objectType, amount, occupiedIndex, availableIndex);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

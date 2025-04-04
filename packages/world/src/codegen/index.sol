@@ -17,7 +17,7 @@ import { ExploredChunk } from "./tables/ExploredChunk.sol";
 import { SurfaceChunkByIndex, SurfaceChunkByIndexData } from "./tables/SurfaceChunkByIndex.sol";
 import { SurfaceChunkCount } from "./tables/SurfaceChunkCount.sol";
 import { RegionMerkleRoot } from "./tables/RegionMerkleRoot.sol";
-import { Inventory } from "./tables/Inventory.sol";
+import { Inventory, InventoryData } from "./tables/Inventory.sol";
 import { InventorySlot, InventorySlotData } from "./tables/InventorySlot.sol";
 import { InventoryEntity, InventoryEntityData } from "./tables/InventoryEntity.sol";
 import { InventoryAvailableSlots } from "./tables/InventoryAvailableSlots.sol";

@@ -72,10 +72,13 @@ function createEntityAt(Vec3 coord, ObjectTypeId objectTypeId) returns (EntityId
   return entityId;
 }
 
-function createTool(ObjectTypeId toolType) returns (EntityId) {
-  require(toolType.isTool(), "Object type is not a tool");
-  EntityId tool = getUniqueEntity();
-  Mass._set(tool, ObjectTypeMetadata._getMass(toolType));
+function createEntity(ObjectTypeId objectType) returns (EntityId) {
+  EntityId entityId = getUniqueEntity();
+  ObjectType._set(entityId, objectType);
+  uint128 mass = ObjectTypeMetadata._getMass(objectType);
+  if (mass > 0) {
+    Mass._setMass(entityId, mass);
+  }
 }
 
 function getMovableEntityAt(Vec3 coord) view returns (EntityId) {

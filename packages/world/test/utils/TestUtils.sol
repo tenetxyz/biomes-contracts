@@ -27,7 +27,6 @@ import {
 } from "../../src/utils/ForceFieldUtils.sol";
 import {
   InventoryUtils,
-  addToInventory as _addToInventory,
   addToolToInventory as _addToolToInventory,
   removeFromInventory as _removeFromInventory,
   removeFromReverseInventoryEntity as _removeFromReverseInventoryEntity,
@@ -85,11 +84,11 @@ library TestInventoryUtils {
 
   function addToInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToAdd) public asWorld {
     require(!objectTypeId.isTool(), "To add a tool, you must use addToolToInventory");
-    _addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), objectTypeId, numObjectsToAdd);
+    InventoryUtils.addObject(ownerEntityId, objectTypeId, numObjectsToAdd);
   }
 
   function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) public asWorld returns (EntityId) {
-    return _addToolToInventory(ownerEntityId, toolObjectTypeId);
+    return InventoryUtils.addTool(ownerEntityId, toolObjectTypeId);
   }
 
   function removeFromInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)
@@ -97,11 +96,11 @@ library TestInventoryUtils {
     asWorld
   {
     require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
-    _removeFromInventory(ownerEntityId, objectTypeId, numObjectsToRemove);
+    InventoryUtils.removeObject(ownerEntityId, objectTypeId, numObjectsToRemove);
   }
 
   function removeFromInventory(EntityId ownerEntityId, EntityId toolEntityId) public asWorld {
-    _removeToolFromInventory(ownerEntityId, toolEntityId, ObjectType.get(toolEntityId));
+    InventoryUtils.removeTool(ownerEntityId, toolEntityId, ObjectType.get(toolEntityId));
   }
 
   function removeFromReverseInventoryEntity(EntityId ownerEntityId, EntityId removeInventoryEntityId) public asWorld {

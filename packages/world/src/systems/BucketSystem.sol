@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
 import { getOrCreateEntityAt, safeGetObjectTypeIdAt } from "../utils/EntityUtils.sol";
-import { addToInventory, removeFromInventory } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -21,8 +21,8 @@ contract BucketSystem is System {
 
     require(safeGetObjectTypeIdAt(waterCoord) == ObjectTypes.Water, "Not water");
 
-    removeFromInventory(caller, ObjectTypes.Bucket, 1);
-    addToInventory(caller, ObjectType._get(caller), ObjectTypes.WaterBucket, 1);
+    InventoryUtils.removeObject(caller, ObjectTypes.Bucket, 1);
+    InventoryUtils.addObject(caller, ObjectTypes.WaterBucket, 1);
   }
 
   function wetFarmland(EntityId caller, Vec3 coord) external {
@@ -33,7 +33,7 @@ contract BucketSystem is System {
     require(objectTypeId == ObjectTypes.Farmland, "Not farmland");
     ObjectType._set(farmland, ObjectTypes.WetFarmland);
 
-    removeFromInventory(caller, ObjectTypes.WaterBucket, 1);
-    addToInventory(caller, ObjectType._get(caller), ObjectTypes.Bucket, 1);
+    InventoryUtils.removeObject(caller, ObjectTypes.WaterBucket, 1);
+    InventoryUtils.addObject(caller, ObjectTypes.Bucket, 1);
   }
 }

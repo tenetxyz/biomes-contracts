@@ -21,9 +21,8 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 
 import { Vec3 } from "../Vec3.sol";
 import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
-import {
-  InventoryUtils, addToInventory, removeAnyFromInventory, removeFromInventory
-} from "../utils/InventoryUtils.sol";
+import { createEntity } from "../utils/EntityUtils.sol";
+import { InventoryUtils, removeAnyFromInventory, removeFromInventory } from "../utils/InventoryUtils.sol";
 import { CraftNotification, notify } from "../utils/NotifUtils.sol";
 
 contract CraftSystem is System {
@@ -57,11 +56,11 @@ contract CraftSystem is System {
       uint16 outputAmount = recipeData.outputAmounts[i];
       if (outputType.isTool()) {
         for (uint256 j = 0; j < outputAmount; j++) {
-          EntityId tool = createTool(outputType);
+          EntityId tool = createEntity(outputType);
           InventoryUtils.addTool(caller, tool);
         }
       } else {
-        addToInventory(caller, ObjectType._get(caller), outputType, outputAmount);
+        InventoryUtils.addObject(caller, outputType, outputAmount);
       }
     }
 

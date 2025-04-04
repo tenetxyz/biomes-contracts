@@ -18,12 +18,7 @@ import { ObjectTypes } from "../../ObjectTypes.sol";
 import { getUniqueEntity } from "../../Utils.sol";
 
 import { getMovableEntityAt, safeGetObjectTypeIdAt, setMovableEntityAt } from "../../utils/EntityUtils.sol";
-import {
-  addToInventory,
-  addToolToInventory,
-  removeFromInventory,
-  removeToolFromInventory
-} from "../../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../../utils/PlayerUtils.sol";
 import { MoveLib } from "../libraries/MoveLib.sol";
 
@@ -37,11 +32,11 @@ contract AdminSystem is System {
 
   function adminAddToInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToAdd) public onlyAdmin {
     require(!objectTypeId.isTool(), "To add a tool, you must use adminAddToolToInventory");
-    addToInventory(owner, ObjectType._get(owner), objectTypeId, numObjectsToAdd);
+    InventoryUtils.addObject(owner, ObjectType._get(owner), objectTypeId, numObjectsToAdd);
   }
 
   function adminAddToolToInventory(EntityId owner, ObjectTypeId toolObjectTypeId) public onlyAdmin returns (EntityId) {
-    return addToolToInventory(owner, toolObjectTypeId);
+    return InventoryUtils.addTool(owner, toolObjectTypeId);
   }
 
   function adminRemoveFromInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)
@@ -49,19 +44,19 @@ contract AdminSystem is System {
     onlyAdmin
   {
     require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
-    removeFromInventory(owner, objectTypeId, numObjectsToRemove);
+    InventoryUtils.removeObject(owner, objectTypeId, numObjectsToRemove);
   }
 
   function adminRemoveToolFromInventory(EntityId owner, EntityId tool) public onlyAdmin {
-    removeToolFromInventory(owner, tool, ObjectType._get(tool));
+    InventoryUtils.removeTool(owner, tool, ObjectType._get(tool));
   }
 
-  function adminTeleportPlayer(address player, Vec3 finalCoord) public onlyAdmin {
-    EntityId player = Player.get(player);
-    player.activate();
+  function adminTeleportPlayer(address playerAddress, Vec3 finalCoord) public onlyAdmin {
+    EntityId player = Player.get(playerAddress);
+    playerAddress.activate();
 
-    Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(player.getPosition());
-    EntityId[] memory players = MoveLib._getPlayers(player, playerCoords);
+    Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerAddress.getPosition());
+    EntityId[] memory players = MoveLib._getPlayers(playerAddress, playerCoords);
     require(!MoveLib._gravityApplies(finalCoord), "Cannot teleport here as gravity applies");
 
     for (uint256 i = 0; i < playerCoords.length; i++) {

@@ -40,7 +40,7 @@ import {
   getOrCreateEntityAt
 } from "../utils/EntityUtils.sol";
 import { destroyForceField, getForceField } from "../utils/ForceFieldUtils.sol";
-import { InventoryUtils, addToInventory } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { DeathNotification, MineNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
@@ -84,7 +84,7 @@ contract MineSystem is System {
     ObjectAmount[] memory amounts = mineObjectTypeId.getMineDrop();
 
     for (uint256 i = 0; i < amounts.length; i++) {
-      addToInventory(caller, ObjectType._get(caller), amounts[i].objectTypeId, amounts[i].amount);
+      InventoryUtils.addObject(caller, amounts[i].objectTypeId, amounts[i].amount);
     }
   }
 

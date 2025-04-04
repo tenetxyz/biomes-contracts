@@ -11,7 +11,6 @@ import { IBuildSystem } from "./IBuildSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
-import { IEquipSystem } from "./IEquipSystem.sol";
 import { IFarmingSystem } from "./IFarmingSystem.sol";
 import { IFoodSystem } from "./IFoodSystem.sol";
 import { IForceFieldSystem } from "./IForceFieldSystem.sol";
@@ -25,7 +24,6 @@ import { IProgramSystem } from "./IProgramSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
-import { IUnequipSystem } from "./IUnequipSystem.sol";
 import { IAdminSystem } from "./IAdminSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 
@@ -45,7 +43,6 @@ interface IWorld is
   ICraftSystem,
   IDisplaySystem,
   IDropSystem,
-  IEquipSystem,
   IFarmingSystem,
   IFoodSystem,
   IForceFieldSystem,
@@ -59,7 +56,6 @@ interface IWorld is
   ISpawnSystem,
   ITerrainSystem,
   ITransferSystem,
-  IUnequipSystem,
   IAdminSystem,
   IReadSystem
 {}

@@ -198,6 +198,7 @@ export default defineWorld({
       schema: {
         owner: "EntityId",
         slotsUsed: "uint16",
+        occupiedSlots: "uint16[]",
       },
       key: ["owner"],
     },
@@ -208,6 +209,8 @@ export default defineWorld({
         entityId: "EntityId",
         objectType: "ObjectTypeId",
         amount: "uint16",
+        occupiedIndex: "uint16",
+        availableIndex: "uint16", // Index in the InventoryAvailableSlots array (type(uint16).max if not in available slots)
       },
       key: ["owner", "slot"],
     },
