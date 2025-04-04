@@ -6,8 +6,7 @@ import { console } from "forge-std/console.sol";
 import { EntityId } from "../src/EntityId.sol";
 
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
-import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+import { Inventory } from "../src/codegen/tables/Inventory.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
@@ -160,7 +159,7 @@ contract MineTest is DustTest {
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Entity should be air");
     assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
     assertInventoryHasObject(aliceEntityId, ObjectTypes.AnyOre, 0);
-    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
+    assertEq(Inventory.length(aliceEntityId), 1, "Inventory slots is not 1");
     oreAmounts = inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 1, "No ores in inventory");
     assertEq(oreAmounts[0].amount, 1, "Did not get exactly one ore");
@@ -396,7 +395,7 @@ contract MineTest is DustTest {
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player) * ObjectTypeMetadata.getStackable(mineObjectTypeId)
     );
     assertEq(
-      InventorySlots.get(aliceEntityId),
+      Inventory.length(aliceEntityId),
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player),
       "Inventory slots is not max"
     );

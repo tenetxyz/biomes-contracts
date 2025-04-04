@@ -8,7 +8,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
 import { transferEnergyToPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { InventoryUtils } from "../utils/InventoryUtils.sol";
+import { InventoryUtils, SlotAmount } from "../utils/InventoryUtils.sol";
 import { TransferNotification, notify } from "../utils/NotifUtils.sol";
 
 import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
@@ -25,8 +25,7 @@ contract TransferSystem is System {
     EntityId caller,
     EntityId from,
     EntityId to,
-    ObjectTypeId transferObjectTypeId,
-    uint16 numToTransfer,
+    SlotAmount[] memory slotAmounts,
     bytes calldata extraData
   ) public payable {
     caller.activate();
@@ -38,48 +37,15 @@ contract TransferSystem is System {
 
     transferEnergyToPool(caller, SMART_CHEST_ENERGY_COST);
 
-    ObjectTypeId toObjectTypeId = ObjectType._get(to);
+    InventoryUtils.transfer(from, to, slotAmounts);
 
-    InventoryUtils.transfer(from, to, toObjectTypeId, transferObjectTypeId, numToTransfer);
-
-    ObjectAmount[] memory objectAmounts = new ObjectAmount[](1);
-    objectAmounts[0] = ObjectAmount(transferObjectTypeId, numToTransfer);
-
+    // TODO: hook might need to change
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    TransferLib._onTransfer(caller, from, to, new EntityId[](0), objectAmounts, extraData);
-  }
-
-  function transferTool(EntityId caller, EntityId from, EntityId to, EntityId tool, bytes calldata extraData)
-    public
-    payable
-  {
-    EntityId[] memory tools = new EntityId[](1);
-    tools[0] = tool;
-    transferTools(caller, from, to, tools, extraData);
-  }
-
-  function transferTools(EntityId caller, EntityId from, EntityId to, EntityId[] memory tools, bytes calldata extraData)
-    public
-    payable
-  {
-    require(tools.length > 0, "Must transfer at least one tool");
-
-    caller.activate();
-    caller.requireConnected(to);
-
-    transferEnergyToPool(caller, SMART_CHEST_ENERGY_COST);
-
-    ObjectTypeId toObjectTypeId = ObjectType._get(to);
-
-    for (uint256 i = 0; i < tools.length; i++) {
-      transferInventoryEntity(from, to, toObjectTypeId, tools[i]);
-    }
-
-    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    TransferLib._onTransfer(caller, from, to, tools, new ObjectAmount[](0), extraData);
+    // TransferLib._onTransfer(caller, from, to, new EntityId[](0), objectAmounts, extraData);
   }
 }
 
+// TODO: adapt
 library TransferLib {
   function _onTransfer(
     EntityId caller,

@@ -9,10 +9,9 @@ import { console } from "forge-std/console.sol";
 import { Direction } from "../src/codegen/common.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 
-import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventoryTypeSlots } from "../src/codegen/tables/InventoryTypeSlots.sol";
 
-import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
-import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+import { Inventory } from "../src/codegen/tables/Inventory.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
@@ -68,8 +67,8 @@ contract DropTest is DustTest {
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 1, "Inventory slots is not 0");
   }
 
   function testDropNonTerrain() public {
@@ -91,8 +90,8 @@ contract DropTest is DustTest {
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 1, "Inventory slots is not 0");
   }
 
   function testDropToolTerrain() public {
@@ -115,9 +114,8 @@ contract DropTest is DustTest {
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
     assertInventoryHasTool(airEntityId, toolEntityId, 1);
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    assertEq(InventoryEntity.get(toolEntityId), airEntityId, "Inventory entity is not air");
+    assertEq(Inventory.length(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 1, "Inventory slots is not 0");
   }
 
   function testDropToolNonTerrain() public {
@@ -138,9 +136,8 @@ contract DropTest is DustTest {
 
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
     assertInventoryHasTool(airEntityId, toolEntityId, 1);
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    assertEq(InventoryEntity.get(toolEntityId), airEntityId, "Inventory entity is not air");
+    assertEq(Inventory.length(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 1, "Inventory slots is not 0");
   }
 
   function testDropNonAirButPassable() public {
@@ -160,8 +157,8 @@ contract DropTest is DustTest {
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 1, "Inventory slots is not 0");
   }
 
   function testPickup() public {
@@ -182,8 +179,8 @@ contract DropTest is DustTest {
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
-    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 1, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 0, "Inventory slots is not 0");
   }
 
   function testPickupTool() public {
@@ -203,8 +200,8 @@ contract DropTest is DustTest {
 
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
     assertInventoryHasTool(airEntityId, toolEntityId, 0);
-    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 1, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 0, "Inventory slots is not 0");
   }
 
   function testPickupMultiple() public {
@@ -233,8 +230,8 @@ contract DropTest is DustTest {
     assertInventoryHasObject(aliceEntityId, objectObjectTypeId, numToPickup);
     assertInventoryHasObject(airEntityId, objectObjectTypeId, 0);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
-    assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 2, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 0, "Inventory slots is not 0");
   }
 
   function testPickupAll() public {
@@ -264,8 +261,8 @@ contract DropTest is DustTest {
     assertInventoryHasTool(airEntityId, toolEntityId1, 0);
     assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
     assertInventoryHasTool(airEntityId, toolEntityId2, 0);
-    assertEq(InventorySlots.get(aliceEntityId), 3, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 3, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 0, "Inventory slots is not 0");
   }
 
   function testPickupMinedChestDrops() public {
@@ -293,8 +290,8 @@ contract DropTest is DustTest {
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
-    assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 2, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 0, "Inventory slots is not 0");
   }
 
   function testPickupFromNonAirButPassable() public {
@@ -313,8 +310,8 @@ contract DropTest is DustTest {
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
-    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 1, "Inventory slots is not 0");
+    assertEq(Inventory.length(airEntityId), 0, "Inventory slots is not 0");
   }
 
   function testPickupFailsIfInventoryFull() public {
@@ -334,7 +331,7 @@ contract DropTest is DustTest {
         * ObjectTypeMetadata.getStackable(transferObjectTypeId)
     );
     assertEq(
-      InventorySlots.get(aliceEntityId),
+      Inventory.length(aliceEntityId),
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player),
       "Inventory slots is not max"
     );

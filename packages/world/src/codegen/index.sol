@@ -19,7 +19,6 @@ import { SurfaceChunkCount } from "./tables/SurfaceChunkCount.sol";
 import { RegionMerkleRoot } from "./tables/RegionMerkleRoot.sol";
 import { Inventory } from "./tables/Inventory.sol";
 import { InventorySlot, InventorySlotData } from "./tables/InventorySlot.sol";
-import { InventoryEntity, InventoryEntityData } from "./tables/InventoryEntity.sol";
 import { InventoryTypeSlots } from "./tables/InventoryTypeSlots.sol";
 import { MovablePosition, MovablePositionData } from "./tables/MovablePosition.sol";
 import { ReverseMovablePosition } from "./tables/ReverseMovablePosition.sol";

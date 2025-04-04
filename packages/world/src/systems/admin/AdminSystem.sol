@@ -36,7 +36,7 @@ contract AdminSystem is System {
   }
 
   function adminAddToolToInventory(EntityId owner, ObjectTypeId toolObjectTypeId) public onlyAdmin returns (EntityId) {
-    return InventoryUtils.addTool(owner, toolObjectTypeId);
+    return InventoryUtils.addEntity(owner, toolObjectTypeId);
   }
 
   function adminRemoveFromInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)

@@ -3,10 +3,8 @@ pragma solidity >=0.8.24;
 
 import { Inventory } from "../codegen/tables/Inventory.sol";
 
-import { InventoryEntity, InventoryEntityData } from "../codegen/tables/InventoryEntity.sol";
 import { InventoryTypeSlots } from "../codegen/tables/InventoryTypeSlots.sol";
 
-import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
 import { InventorySlot, InventorySlotData } from "../codegen/tables/InventorySlot.sol";
 
 import { Mass } from "../codegen/tables/Mass.sol";
@@ -23,18 +21,23 @@ import { EntityId } from "../EntityId.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
+struct SlotAmount {
+  uint16 slot;
+  uint16 amount;
+}
+
 library InventoryUtils {
-  function useTool(EntityId owner, EntityId tool, uint128 useMassMax)
+  function useTool(EntityId owner, uint16 slot, uint128 useMassMax)
     internal
     returns (uint128 massUsed, ObjectTypeId toolType)
   {
+    EntityId tool = InventorySlot._getEntityId(owner, slot);
     if (!tool.exists()) {
       return (0, ObjectTypes.Null);
     }
 
     toolType = ObjectType._get(tool);
     require(toolType.isTool(), "Inventory item is not a tool");
-    require(owner == InventoryEntity._getOwner(tool), "Tool not owned");
     uint128 toolMassLeft = Mass._getMass(tool);
     require(toolMassLeft > 0, "Tool is already broken");
 
@@ -50,7 +53,8 @@ library InventoryUtils {
     if (toolMassLeft <= massUsed) {
       massUsed = toolMassLeft;
       // Destroy equipped item
-      destroyTool(tool);
+      recycleSlot(owner, slot);
+      Mass._deleteRecord(tool);
 
       // Burn ores and make them available for respawn
       toolType.burnOres();
@@ -61,18 +65,15 @@ library InventoryUtils {
     }
   }
 
-  function addTool(EntityId owner, EntityId tool) internal {
+  function addEntity(EntityId owner, EntityId entityId) internal {
     (uint16 slot, uint16 occupiedIndex) = useEmptySlot(owner);
-    ObjectTypeId toolType = ObjectType._get(tool);
+    ObjectTypeId objectType = ObjectType._get(entityId);
 
     // Set the slot data
-    InventorySlot._set(owner, slot, tool, toolType, 1, occupiedIndex, 0);
+    InventorySlot._set(owner, slot, entityId, objectType, 1, occupiedIndex, 0);
 
     // Add to type slots for this tool type
-    addToTypeSlots(owner, toolType, slot);
-
-    // Set entity-to-inventory mapping
-    InventoryEntity._set(tool, owner, slot);
+    addToTypeSlots(owner, objectType, slot);
   }
 
   function addObject(EntityId owner, ObjectTypeId objectType, uint16 amount) internal {
@@ -82,7 +83,7 @@ library InventoryUtils {
 
     uint16 remaining = amount;
 
-    // First, find and fill existing partially filled slots for this object type
+    // First, find and fill existing slots for this object type
     uint256 numTypeSlots = InventoryTypeSlots._length(owner, objectType);
     for (uint256 i = 0; i < numTypeSlots && remaining > 0; i++) {
       uint16 slot = InventoryTypeSlots._getItem(owner, objectType, i);
@@ -117,28 +118,6 @@ library InventoryUtils {
     }
   }
 
-  function destroyTool(EntityId tool) private {
-    removeTool(tool);
-    Mass._deleteRecord(tool);
-  }
-
-  function removeTool(EntityId tool) private returns (InventoryEntityData memory) {
-    InventoryEntityData memory data = InventoryEntity._get(tool);
-    EntityId owner = data.owner;
-    uint16 slot = data.slot;
-
-    // Get the tool type to remove from type slots
-    ObjectTypeId toolType = InventorySlot._getObjectType(owner, slot);
-
-    // Recycle the slot (this handles removing from type slots too)
-    recycleSlot(owner, slot);
-
-    // Remove the entity mapping
-    InventoryEntity._deleteRecord(tool);
-
-    return data;
-  }
-
   function removeObject(EntityId owner, ObjectTypeId objectType, uint16 amount) internal {
     require(amount > 0, "Amount must be greater than 0");
 
@@ -156,8 +135,6 @@ library InventoryUtils {
       if (currentAmount <= remainingToRemove) {
         // Remove entire slot contents
         remainingToRemove -= currentAmount;
-
-        // Recycle the slot
         recycleSlot(owner, slot);
       } else {
         // Remove partial amount
@@ -170,49 +147,52 @@ library InventoryUtils {
     require(remainingToRemove == 0, "Not enough objects to remove");
   }
 
-  function transfer(EntityId from, EntityId to, EntityId[] memory tools, ObjectAmount[] memory objectAmounts) internal {
+  function transfer(EntityId from, EntityId to, SlotAmount[] memory slotAmounts) internal {
     require(from != to, "Cannot transfer to self");
 
     // Transfer tools
-    for (uint256 i = 0; i < tools.length; i++) {
-      EntityId tool = tools[i];
-      require(tool.exists(), "Tool does not exist");
-      require(removeTool(tool).owner == from, "Tool not owned by sender");
-      addTool(to, tool);
-    }
-
-    // Transfer objects
-    for (uint256 i = 0; i < objectAmounts.length; i++) {
-      (ObjectTypeId objectType, uint16 amount) = (objectAmounts[i].objectTypeId, objectAmounts[i].amount);
-      require(amount > 0, "Amount must be greater than 0");
-      removeObject(from, objectType, amount);
-      addObject(to, objectType, amount);
+    for (uint256 i = 0; i < slotAmounts.length; i++) {
+      (uint16 slot, uint16 amount) = (slotAmounts[i].slot, slotAmounts[i].amount);
+      InventorySlotData memory slotData = InventorySlot._get(from, slot);
+      if (slotData.entityId.exists()) {
+        require(slotData.amount == 1, "Can only transfer one entity per slot");
+        recycleSlot(from, slot);
+        addEntity(to, slotData.entityId);
+      } else {
+        require(amount > 0, "Amount must be greater than 0");
+        removeObject(from, slotData.objectType, amount);
+        addObject(to, slotData.objectType, amount);
+      }
     }
   }
 
   function transferAll(EntityId from, EntityId to) internal {
     require(from != to, "Cannot transfer to self");
 
+    // Occupied slots
     uint16[] memory slots = Inventory._get(from);
 
     // Inventory is empty
     if (slots.length == 0) return;
 
-    // Process all slots first
     for (uint256 i = 0; i < slots.length; i++) {
       InventorySlotData memory slotData = InventorySlot._get(from, slots[i]);
 
-      // If this is a tool
+      // If this is an Entity
       if (slotData.entityId.exists()) {
         // No need to remove from owner as we will clean the whole inventory later
-        addTool(to, slotData.entityId);
+        addEntity(to, slotData.entityId);
       } else {
         // Transfer regular objects
         addObject(to, slotData.objectType, slotData.amount);
       }
 
       InventorySlot._deleteRecord(from, slots[i]);
-      InventoryTypeSlots._deleteRecord(from, slotData.objectType);
+
+      // We only need to delete the record once per type, so we arbitrarily select the first slot
+      if (slotData.typeIndex == 0) {
+        InventoryTypeSlots._deleteRecord(from, slotData.objectType);
+      }
     }
 
     // Clean up inventory structure
@@ -243,23 +223,15 @@ library InventoryUtils {
     uint16 typeIndex = InventorySlot._getTypeIndex(owner, slot);
     uint256 numTypeSlots = InventoryTypeSlots._length(owner, objectType);
 
-    // Only remove if the slot is in the type slots
-    if (typeIndex < numTypeSlots) {
-      // If not the last element, swap with the last element
-      if (typeIndex < numTypeSlots - 1) {
-        uint16 lastSlot = InventoryTypeSlots._getItem(owner, objectType, numTypeSlots - 1);
-        InventoryTypeSlots._update(owner, objectType, typeIndex, lastSlot);
-
-        // Update the typeIndex for the moved slot
-        InventorySlot._setTypeIndex(owner, lastSlot, typeIndex);
-      }
-
-      // Pop the last element
-      InventoryTypeSlots._pop(owner, objectType);
+    // If not the last element, swap with the last element
+    if (typeIndex < numTypeSlots - 1) {
+      uint16 lastSlot = InventoryTypeSlots._getItem(owner, objectType, numTypeSlots - 1);
+      InventoryTypeSlots._update(owner, objectType, typeIndex, lastSlot);
+      InventorySlot._setTypeIndex(owner, lastSlot, typeIndex);
     }
 
-    // Clear the typeIndex - now the slot doesn't belong to any type
-    InventorySlot._setTypeIndex(owner, slot, 0);
+    // Pop the last element
+    InventoryTypeSlots._pop(owner, objectType);
   }
 
   // Gets a slot to use - either reuses an empty slot or creates a new one - O(1)
@@ -302,14 +274,7 @@ library InventoryUtils {
     ObjectTypeId objectType = InventorySlot._getObjectType(owner, slot);
 
     // Remove from type-specific slots if needed
-    if (objectType != ObjectTypes.Null) {
-      removeFromTypeSlots(owner, objectType, slot);
-    }
-
-    // The slot should be emptied but not deleted - we'll reuse it
-    InventorySlot._setObjectType(owner, slot, ObjectTypes.Null);
-    InventorySlot._setAmount(owner, slot, 0);
-    InventorySlot._setEntityId(owner, slot, EntityId.wrap(0));
+    removeFromTypeSlots(owner, objectType, slot);
 
     // Add to null object type's slots
     addToTypeSlots(owner, ObjectTypes.Null, slot);
@@ -324,6 +289,9 @@ library InventoryUtils {
       Inventory._update(owner, occupiedIndex, lastSlot);
       InventorySlot._setOccupiedIndex(owner, lastSlot, occupiedIndex);
     }
+
+    // The slot should be emptied
+    InventorySlot._deleteRecord(owner, slot);
 
     // Pop the last element from occupied slots
     Inventory._pop(owner);

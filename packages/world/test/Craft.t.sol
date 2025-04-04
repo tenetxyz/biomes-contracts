@@ -9,8 +9,7 @@ import { console } from "forge-std/console.sol";
 import { EntityId } from "../src/EntityId.sol";
 
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
-import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+import { Inventory } from "../src/codegen/tables/Inventory.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 
 import { Mass } from "../src/codegen/tables/Mass.sol";
@@ -24,7 +23,6 @@ import { Player } from "../src/codegen/tables/Player.sol";
 
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
-import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
@@ -427,7 +425,7 @@ contract CraftTest is DustTest {
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player) * ObjectTypeMetadata.getStackable(ObjectTypes.OakLog)
     );
     assertEq(
-      InventorySlots.get(aliceEntityId),
+      Inventory.length(aliceEntityId),
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player),
       "Inventory slots is not max"
     );

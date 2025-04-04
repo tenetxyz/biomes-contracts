@@ -208,18 +208,11 @@ export default defineWorld({
         entityId: "EntityId",
         objectType: "ObjectTypeId",
         amount: "uint16",
+        // TODO: we could make them bigger but not sure if neeed
         occupiedIndex: "uint16",
         typeIndex: "uint16", // Index in InventoryTypeSlots
       },
       key: ["owner", "slot"],
-    },
-    InventoryEntity: {
-      schema: {
-        entityId: "EntityId",
-        owner: "EntityId",
-        slot: "uint16",
-      },
-      key: ["entityId"],
     },
     InventoryTypeSlots: {
       schema: {

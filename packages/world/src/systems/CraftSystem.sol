@@ -6,7 +6,6 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Action } from "../codegen/common.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
@@ -57,7 +56,7 @@ contract CraftSystem is System {
       if (outputType.isTool()) {
         for (uint256 j = 0; j < outputAmount; j++) {
           EntityId tool = createEntity(outputType);
-          InventoryUtils.addTool(caller, tool);
+          InventoryUtils.addEntity(caller, tool);
         }
       } else {
         InventoryUtils.addObject(caller, outputType, outputAmount);

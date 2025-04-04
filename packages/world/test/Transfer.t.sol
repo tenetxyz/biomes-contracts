@@ -16,10 +16,7 @@ import { EntityId } from "../src/EntityId.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { EnergyData } from "../src/codegen/tables/Energy.sol";
 
-import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
-
-import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
-import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+import { Inventory } from "../src/codegen/tables/Inventory.sol";
 
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 
@@ -112,8 +109,8 @@ contract TransferTest is DustTest {
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(chestEntityId), 1, "Inventory slots is not 0");
   }
 
   function testTransferToolToChest() public {
@@ -134,8 +131,8 @@ contract TransferTest is DustTest {
 
     assertInventoryHasTool(chestEntityId, toolEntityId, 1);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
-    assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(chestEntityId), 1, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 0, "Inventory slots is not 0");
   }
 
   function testTransferFromChest() public {
@@ -156,8 +153,8 @@ contract TransferTest is DustTest {
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
-    assertEq(InventorySlots.get(aliceEntityId), numToTransfer, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(chestEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), numToTransfer, "Inventory slots is not 0");
+    assertEq(Inventory.length(chestEntityId), 0, "Inventory slots is not 0");
   }
 
   function testTransferToolFromChest() public {
@@ -184,8 +181,8 @@ contract TransferTest is DustTest {
     assertInventoryHasTool(aliceEntityId, toolEntityId2, 2);
     assertInventoryHasTool(chestEntityId, toolEntityId1, 0);
     assertInventoryHasTool(chestEntityId, toolEntityId2, 0);
-    assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
-    assertEq(InventorySlots.get(chestEntityId), 0, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 2, "Inventory slots is not 0");
+    assertEq(Inventory.length(chestEntityId), 0, "Inventory slots is not 0");
   }
 
   function testTransferToChestFailsIfChestFull() public {
@@ -200,7 +197,7 @@ contract TransferTest is DustTest {
       transferObjectTypeId,
       ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxChestInventorySlots
     );
-    assertEq(InventorySlots.get(chestEntityId), maxChestInventorySlots, "Inventory slots is not max");
+    assertEq(Inventory.length(chestEntityId), maxChestInventorySlots, "Inventory slots is not max");
 
     TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
@@ -222,7 +219,7 @@ contract TransferTest is DustTest {
       transferObjectTypeId,
       ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxPlayerInventorySlots
     );
-    assertEq(InventorySlots.get(aliceEntityId), maxPlayerInventorySlots, "Inventory slots is not max");
+    assertEq(Inventory.length(aliceEntityId), maxPlayerInventorySlots, "Inventory slots is not max");
 
     TestInventoryUtils.addObject(chestEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
