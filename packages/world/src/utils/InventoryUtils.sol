@@ -152,7 +152,9 @@ library InventoryUtils {
 
     // Iterate through occupied slots
     uint256 numOccupiedSlots = Inventory._lengthOccupiedSlots(owner);
-    for (uint256 i = 0; i < numOccupiedSlots && remainingToRemove > 0; i++) {
+
+    // Start from the end of occupied slots to minimize array shifts
+    for (uint256 i = numOccupiedSlots - 1; i >= 0 && remainingToRemove > 0; i--) {
       uint16 slot = Inventory._getItemOccupiedSlots(owner, i);
       InventorySlotData memory slotData = InventorySlot._get(owner, slot);
 
@@ -173,7 +175,6 @@ library InventoryUtils {
 
         // Update the counter as we removed an item
         numOccupiedSlots--;
-        i--; // Stay at the same index since we've moved an element here
       } else {
         // Remove partial amount
         uint16 newAmount = slotData.amount - remainingToRemove;
