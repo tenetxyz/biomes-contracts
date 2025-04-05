@@ -422,7 +422,7 @@ contract BuildTest is DustTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects of this type in inventory");
     world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 

@@ -381,7 +381,7 @@ contract InventoryTest is DustTest {
     drop[0] = SlotAmount({ slot: 0, amount: 1 });
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects in slot");
     world.drop(aliceEntityId, drop, dropCoord);
   }
 
@@ -395,7 +395,7 @@ contract InventoryTest is DustTest {
     pickup[0] = SlotAmount({ slot: 0, amount: 1 });
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects in slot");
     world.pickup(aliceEntityId, pickup, dropCoord);
   }
 
@@ -519,7 +519,7 @@ contract InventoryTest is DustTest {
     drops[0] = SlotAmount({ slot: 1, amount: 0 });
 
     vm.prank(alice);
-    vm.expectRevert("Amount must be greater than 0");
+    vm.expectRevert("Invalid amount for entity slot");
     world.drop(aliceEntityId, drops, dropCoord);
   }
 

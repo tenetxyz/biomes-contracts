@@ -122,12 +122,13 @@ library InventoryUtils {
 
   function removeObject(EntityId owner, ObjectTypeId objectType, uint16 amount) public {
     require(amount > 0, "Amount must be greater than 0");
+    require(!objectType.isNull(), "Empty slot");
 
     uint16 remaining = amount;
 
     // Check if there are any slots with this object type
     uint256 numTypeSlots = InventoryTypeSlots._length(owner, objectType);
-    require(numTypeSlots > 0, "No enough objects of this type in inventory");
+    require(numTypeSlots > 0, "Not enough objects of this type in inventory");
 
     // Iterate from end to minimize array shifts
     for (uint256 i = numTypeSlots; i > 0 && remaining > 0; i--) {
@@ -146,7 +147,7 @@ library InventoryUtils {
       }
     }
 
-    require(remaining == 0, "No enough objects of this type in inventory");
+    require(remaining == 0, "Not enough objects of this type in inventory");
   }
 
   function removeAny(EntityId owner, ObjectTypeId objectType, uint16 amount) public {
@@ -172,7 +173,7 @@ library InventoryUtils {
       }
     }
 
-    require(remaining == 0, "No enough objects of this type in inventory");
+    require(remaining == 0, "Not enough objects of this type in inventory");
   }
 
   function transfer(EntityId from, EntityId to, SlotAmount[] memory slotAmounts) public {
@@ -183,10 +184,11 @@ library InventoryUtils {
       (uint16 slot, uint16 amount) = (slotAmounts[i].slot, slotAmounts[i].amount);
       InventorySlotData memory slotData = InventorySlot._get(from, slot);
       if (slotData.entityId.exists()) {
-        require(slotData.amount == 1, "Can only transfer one entity per slot");
+        require(amount == slotData.amount, "Invalid amount for entity slot");
         recycleSlot(from, slot);
         addEntity(to, slotData.entityId);
       } else {
+        require(amount <= slotData.amount, "Not enough objects in slot");
         removeObject(from, slotData.objectType, amount);
         addObject(to, slotData.objectType, amount);
       }

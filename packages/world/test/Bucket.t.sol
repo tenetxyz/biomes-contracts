@@ -91,7 +91,7 @@ contract BucketTest is DustTest {
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Bucket, 0);
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects of this type in inventory");
     world.fillBucket(aliceEntityId, waterCoord);
   }
 
@@ -129,7 +129,7 @@ contract BucketTest is DustTest {
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WaterBucket, 0);
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects of this type in inventory");
     world.wetFarmland(aliceEntityId, farmlandCoord);
   }
 

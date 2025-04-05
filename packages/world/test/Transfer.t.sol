@@ -17,6 +17,8 @@ import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { EnergyData } from "../src/codegen/tables/Energy.sol";
 
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
+import { InventorySlot } from "../src/codegen/tables/InventorySlot.sol";
+import { InventoryTypeSlots } from "../src/codegen/tables/InventoryTypeSlots.sol";
 
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 
@@ -148,7 +150,7 @@ contract TransferTest is DustTest {
 
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
-    ObjectTypeId transferObjectTypeId = ObjectTypes.Chest;
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Dirt;
     uint16 numToTransfer = 10;
     TestInventoryUtils.addObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
@@ -282,7 +284,7 @@ contract TransferTest is DustTest {
     slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 2 });
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects in slot");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
 
     slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
@@ -295,7 +297,7 @@ contract TransferTest is DustTest {
     slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 2 });
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects in slot");
     world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
 
     slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
@@ -313,7 +315,7 @@ contract TransferTest is DustTest {
     slotsToTransfer[0] = SlotAmount({ slot: 1, amount: 1 });
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects in slot");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
 
     vm.prank(alice);
@@ -322,7 +324,7 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
-    vm.expectRevert("No enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects of this type in inventory");
     world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
   }
 
@@ -346,7 +348,7 @@ contract TransferTest is DustTest {
     slotsToTransfer[0] = SlotAmount({ slot: 1, amount: 0 });
 
     vm.prank(alice);
-    vm.expectRevert("Amount must be greater than 0");
+    vm.expectRevert("Invalid amount for entity slot");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
   }
 
