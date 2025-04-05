@@ -37,7 +37,7 @@ import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectAmount, ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { SlotAmount } from "../src/utils/InventoryUtils.sol";
+import { SlotTransfer } from "../src/utils/InventoryUtils.sol";
 
 import { Vec3, vec3 } from "../src/Vec3.sol";
 
@@ -61,8 +61,8 @@ contract InventoryTest is DustTest {
 
     vm.prank(alice);
     startGasReport("drop terrain");
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToTransfer });
     world.drop(aliceEntityId, drops, dropCoord);
     endGasReport();
 
@@ -86,8 +86,8 @@ contract InventoryTest is DustTest {
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToTransfer });
 
     vm.prank(alice);
     startGasReport("drop non-terrain");
@@ -111,8 +111,8 @@ contract InventoryTest is DustTest {
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
 
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     startGasReport("drop tool terrain");
@@ -138,8 +138,8 @@ contract InventoryTest is DustTest {
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity already exists");
 
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     startGasReport("drop tool non-terrain");
@@ -164,8 +164,8 @@ contract InventoryTest is DustTest {
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToTransfer });
 
     vm.prank(alice);
     world.drop(aliceEntityId, drops, dropCoord);
@@ -187,8 +187,8 @@ contract InventoryTest is DustTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: numToPickup });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToPickup });
 
     vm.prank(alice);
     startGasReport("pickup");
@@ -211,8 +211,8 @@ contract InventoryTest is DustTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     startGasReport("pickup tool");
@@ -239,9 +239,9 @@ contract InventoryTest is DustTest {
     assertInventoryHasObject(aliceEntityId, toolObjectTypeId, 0);
     assertInventoryHasObject(airEntityId, objectObjectTypeId, numToPickup);
 
-    SlotAmount[] memory pickup = new SlotAmount[](2);
-    pickup[0] = SlotAmount({ slot: 0, amount: numToPickup });
-    pickup[1] = SlotAmount({ slot: 1, amount: 1 });
+    SlotTransfer[] memory pickup = new SlotTransfer[](2);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToPickup });
+    pickup[1] = SlotTransfer({ slotFrom: 1, slotTo: 1, amount: 1 });
 
     vm.prank(alice);
     startGasReport("pickup multiple");
@@ -327,8 +327,8 @@ contract InventoryTest is DustTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: numToPickup });
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToPickup });
 
     vm.prank(alice);
     world.pickup(aliceEntityId, pickup, pickupCoord);
@@ -361,8 +361,8 @@ contract InventoryTest is DustTest {
       "Inventory slots is not max"
     );
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("All slots used");
@@ -375,8 +375,8 @@ contract InventoryTest is DustTest {
     Vec3 dropCoord = playerCoord + vec3(0, 0, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
 
-    SlotAmount[] memory drop = new SlotAmount[](1);
-    drop[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory drop = new SlotTransfer[](1);
+    drop[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in slot");
@@ -389,9 +389,8 @@ contract InventoryTest is DustTest {
     Vec3 dropCoord = playerCoord + vec3(0, 0, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: 1 });
-
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
     vm.prank(alice);
     vm.expectRevert("Not enough objects in slot");
     world.pickup(aliceEntityId, pickup, dropCoord);
@@ -407,8 +406,8 @@ contract InventoryTest is DustTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Entity is too far");
@@ -424,8 +423,8 @@ contract InventoryTest is DustTest {
     TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
-    SlotAmount[] memory drop = new SlotAmount[](1);
-    drop[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory drop = new SlotTransfer[](1);
+    drop[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Entity is too far");
@@ -447,12 +446,12 @@ contract InventoryTest is DustTest {
     TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
-    SlotAmount[] memory drop = new SlotAmount[](1);
-    drop[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Cannot drop on a non-passable block");
-    world.drop(aliceEntityId, drop, dropCoord);
+    world.drop(aliceEntityId, drops, dropCoord);
   }
 
   function testPickupFailsIfNonAirBlock() public {
@@ -463,9 +462,8 @@ contract InventoryTest is DustTest {
     EntityId airEntityId = ReversePosition.get(pickupCoord);
     assertFalse(airEntityId.exists(), "Drop entity doesn't exists");
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: 1 });
-
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
     vm.prank(alice);
     vm.expectRevert("No entity at pickup location");
     world.pickup(aliceEntityId, pickup, pickupCoord);
@@ -488,8 +486,8 @@ contract InventoryTest is DustTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: 0 });
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 0 });
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
@@ -506,18 +504,18 @@ contract InventoryTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenPick);
 
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 0 });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 0 });
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
     world.drop(aliceEntityId, drops, dropCoord);
 
-    drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 1, amount: 0 });
+    drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 1, slotTo: 0, amount: 0 });
 
     vm.prank(alice);
-    vm.expectRevert("Invalid amount for entity slot");
+    vm.expectRevert("Amount must be greater than 0");
     world.drop(aliceEntityId, drops, dropCoord);
   }
 
@@ -531,8 +529,8 @@ contract InventoryTest is DustTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.expectRevert("Caller not allowed");
     world.pickup(aliceEntityId, pickup, pickupCoord);
@@ -547,8 +545,8 @@ contract InventoryTest is DustTest {
     TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.expectRevert("Caller not allowed");
     world.drop(aliceEntityId, drops, dropCoord);
@@ -566,8 +564,8 @@ contract InventoryTest is DustTest {
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
-    SlotAmount[] memory pickup = new SlotAmount[](1);
-    pickup[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory pickup = new SlotTransfer[](1);
+    pickup[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
@@ -585,8 +583,8 @@ contract InventoryTest is DustTest {
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
-    SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory drops = new SlotTransfer[](1);
+    drops[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");

@@ -46,7 +46,7 @@ import { ProgramId } from "../src/ProgramId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
-import { SlotAmount } from "../src/utils/InventoryUtils.sol";
+import { SlotTransfer } from "../src/utils/InventoryUtils.sol";
 import { Position } from "../src/utils/Vec3Storage.sol";
 
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
@@ -106,8 +106,8 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToTransfer });
 
     vm.prank(alice);
     startGasReport("transfer to chest");
@@ -131,8 +131,8 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     startGasReport("transfer tool to chest");
@@ -156,8 +156,8 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToTransfer });
 
     vm.prank(alice);
     startGasReport("transfer from chest");
@@ -182,9 +182,9 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 2);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](2);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
-    slotsToTransfer[1] = SlotAmount({ slot: 1, amount: 1 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](2);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
+    slotsToTransfer[1] = SlotTransfer({ slotFrom: 1, slotTo: 1, amount: 1 });
 
     vm.prank(alice);
     startGasReport("transfer tools from chest");
@@ -216,11 +216,11 @@ contract TransferTest is DustTest {
     TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
-    vm.expectRevert("All slots used");
+    vm.expectRevert("Object does not fit in slot");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
   }
 
@@ -241,11 +241,11 @@ contract TransferTest is DustTest {
     TestInventoryUtils.addObject(chestEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
-    vm.expectRevert("All slots used");
+    vm.expectRevert("Object does not fit in slot");
     world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
   }
 
@@ -261,8 +261,8 @@ contract TransferTest is DustTest {
 
     assertEq(ObjectTypeMetadata.getMaxInventorySlots(transferObjectTypeId), 0, "Max inventory slots is not 0");
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("All slots used");
@@ -280,14 +280,14 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 2 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 2 });
 
     vm.prank(alice);
-    vm.expectRevert("Not enough objects in slot");
+    vm.expectRevert("Empty slot");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
 
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     // Transfer grass from alice to chest
     vm.prank(alice);
@@ -295,13 +295,13 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 2 });
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 2 });
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in slot");
     world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
 
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     // Transfer grass from chest to alice
     vm.prank(alice);
@@ -314,13 +314,13 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
-    slotsToTransfer[0] = SlotAmount({ slot: 1, amount: 1 });
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 1, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in slot");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
 
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     // Transfer tool from chest to alice
     vm.prank(alice);
@@ -343,17 +343,17 @@ contract TransferTest is DustTest {
 
     TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenPick);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 0 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 0 });
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
 
-    slotsToTransfer[0] = SlotAmount({ slot: 1, amount: 0 });
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 1, slotTo: 0, amount: 0 });
 
     vm.prank(alice);
-    vm.expectRevert("Invalid amount for entity slot");
+    vm.expectRevert("Amount must be greater than 0");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
   }
 
@@ -368,8 +368,8 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Entity is too far");
@@ -391,8 +391,8 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.expectRevert("Caller not allowed");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
@@ -411,8 +411,8 @@ contract TransferTest is DustTest {
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
@@ -436,8 +436,8 @@ contract TransferTest is DustTest {
     attachTestProgram(chestEntityId, program, "namespace");
     program.setRevertOnTransfer(true);
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToTransfer });
 
     vm.prank(alice);
     vm.expectRevert("Transfer not allowed by chest");
@@ -464,8 +464,8 @@ contract TransferTest is DustTest {
     TestChestProgram program = new TestChestProgram();
     attachTestProgram(chestEntityId, program, "namespace");
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToTransfer });
 
     program.call(
       world, abi.encodeCall(world.transfer, (chestEntityId, chestEntityId, otherChestEntityId, slotsToTransfer, ""))
@@ -494,8 +494,8 @@ contract TransferTest is DustTest {
     TestChestProgram program = new TestChestProgram();
     attachTestProgram(chestEntityId, program, "namespace");
 
-    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
-    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+    SlotTransfer[] memory slotsToTransfer = new SlotTransfer[](1);
+    slotsToTransfer[0] = SlotTransfer({ slotFrom: 0, slotTo: 0, amount: numToTransfer });
 
     vm.expectRevert("Entity is too far");
     program.call(

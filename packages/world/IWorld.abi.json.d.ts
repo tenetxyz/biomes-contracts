@@ -478,12 +478,17 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "slotAmounts",
+        "name": "slotTransfers",
         "type": "tuple[]",
-        "internalType": "struct SlotAmount[]",
+        "internalType": "struct SlotTransfer[]",
         "components": [
           {
-            "name": "slot",
+            "name": "slotFrom",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "slotTo",
             "type": "uint16",
             "internalType": "uint16"
           },
@@ -2279,12 +2284,17 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "slotAmounts",
+        "name": "slotTransfers",
         "type": "tuple[]",
-        "internalType": "struct SlotAmount[]",
+        "internalType": "struct SlotTransfer[]",
         "components": [
           {
-            "name": "slot",
+            "name": "slotFrom",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "slotTo",
             "type": "uint16",
             "internalType": "uint16"
           },
@@ -3068,12 +3078,17 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "slotAmounts",
+        "name": "slotTransfers",
         "type": "tuple[]",
-        "internalType": "struct SlotAmount[]",
+        "internalType": "struct SlotTransfer[]",
         "components": [
           {
-            "name": "slot",
+            "name": "slotFrom",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "slotTo",
             "type": "uint16",
             "internalType": "uint16"
           },

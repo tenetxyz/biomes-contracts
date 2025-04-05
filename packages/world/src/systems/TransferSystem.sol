@@ -8,7 +8,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
 import { transferEnergyToPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { InventoryUtils, SlotAmount } from "../utils/InventoryUtils.sol";
+import { InventoryUtils, SlotTransfer, SlotTransfer } from "../utils/InventoryUtils.sol";
 import { TransferNotification, notify } from "../utils/NotifUtils.sol";
 
 import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
@@ -25,7 +25,7 @@ contract TransferSystem is System {
     EntityId caller,
     EntityId from,
     EntityId to,
-    SlotAmount[] memory slotAmounts,
+    SlotTransfer[] memory slotTransfers,
     bytes calldata extraData
   ) public payable {
     caller.activate();
@@ -37,7 +37,7 @@ contract TransferSystem is System {
 
     transferEnergyToPool(caller, SMART_CHEST_ENERGY_COST);
 
-    InventoryUtils.transfer(from, to, slotAmounts);
+    InventoryUtils.transfer(from, to, slotTransfers);
 
     // TODO: hook might need to change
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
