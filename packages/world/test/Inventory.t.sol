@@ -9,8 +9,6 @@ import { console } from "forge-std/console.sol";
 import { Direction } from "../src/codegen/common.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 
-import { InventoryTypeSlots } from "../src/codegen/tables/InventoryTypeSlots.sol";
-
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";

@@ -41,14 +41,9 @@ library InventoryUtils {
     uint128 toolMassLeft = Mass._getMass(tool);
     require(toolMassLeft > 0, "Tool is already broken");
 
-    // TODO: separate mine and hit?
-    // TODO: should it use at most tool's max mass / 10?
-    if (toolMassLeft >= useMassMax) {
-      massUsed = useMassMax;
-    } else {
-      // TODO: Confirm if this is correct
-      massUsed = ObjectTypeMetadata._getMass(toolType) / 10;
-    }
+    uint128 maxMass = ObjectTypeMetadata._getMass(toolType);
+    uint128 maxUsePerCall = maxMass / 10; // Limit to 10% of max mass per use
+    massUsed = useMassMax > maxUsePerCall ? maxUsePerCall : useMassMax;
 
     if (toolMassLeft <= massUsed) {
       massUsed = toolMassLeft;
@@ -207,7 +202,6 @@ library InventoryUtils {
     for (uint256 i = 0; i < slots.length; i++) {
       InventorySlotData memory slotData = InventorySlot._get(from, slots[i]);
 
-      // If this is an Entity
       if (slotData.entityId.exists()) {
         // No need to remove from owner as we will clean the whole inventory later
         addEntity(to, slotData.entityId);
@@ -230,19 +224,7 @@ library InventoryUtils {
 
   // Add a slot to type slots - O(1)
   function addToTypeSlots(EntityId owner, ObjectTypeId objectType, uint16 slot) private {
-    // Check if slot already exists in type slots
-    uint16 typeIndex = InventorySlot._getTypeIndex(owner, slot);
     uint256 numTypeSlots = InventoryTypeSlots._length(owner, objectType);
-
-    // If slot already has a valid index and the type matches, no need to update
-    if (typeIndex < numTypeSlots) {
-      uint16 existingSlot = InventoryTypeSlots._getItem(owner, objectType, typeIndex);
-      if (existingSlot == slot) {
-        return;
-      }
-    }
-
-    // Add to type slots
     InventoryTypeSlots._push(owner, objectType, slot);
     InventorySlot._setTypeIndex(owner, slot, uint16(numTypeSlots));
   }

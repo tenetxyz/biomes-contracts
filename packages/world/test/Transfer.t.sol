@@ -166,7 +166,7 @@ contract TransferTest is DustTest {
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
-    assertEq(Inventory.length(aliceEntityId), numToTransfer, "Inventory slots is not 0");
+    assertEq(Inventory.length(aliceEntityId), 1, "Inventory not set");
     assertEq(Inventory.length(chestEntityId), 0, "Inventory slots is not 0");
   }
 
@@ -289,6 +289,7 @@ contract TransferTest is DustTest {
 
     slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
 
+    // Transfer grass from alice to chest
     vm.prank(alice);
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
@@ -302,6 +303,7 @@ contract TransferTest is DustTest {
 
     slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
 
+    // Transfer grass from chest to alice
     vm.prank(alice);
     world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
@@ -318,13 +320,16 @@ contract TransferTest is DustTest {
     vm.expectRevert("Not enough objects in slot");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
 
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
+    // Transfer tool from chest to alice
     vm.prank(alice);
     world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
-    vm.expectRevert("Not enough objects of this type in inventory");
+    vm.expectRevert("Not enough objects in slot");
     world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
   }
 
