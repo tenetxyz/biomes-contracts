@@ -73,6 +73,8 @@ function createEntity(ObjectTypeId objectType) returns (EntityId) {
   if (mass > 0) {
     Mass._setMass(entityId, mass);
   }
+
+  return entityId;
 }
 
 function getMovableEntityAt(Vec3 coord) view returns (EntityId) {

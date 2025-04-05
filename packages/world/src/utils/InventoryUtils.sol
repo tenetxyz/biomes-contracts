@@ -123,30 +123,56 @@ library InventoryUtils {
   function removeObject(EntityId owner, ObjectTypeId objectType, uint16 amount) public {
     require(amount > 0, "Amount must be greater than 0");
 
-    uint16 remainingToRemove = amount;
+    uint16 remaining = amount;
 
     // Check if there are any slots with this object type
     uint256 numTypeSlots = InventoryTypeSlots._length(owner, objectType);
-    require(numTypeSlots > 0, "No objects of this type in inventory");
+    require(numTypeSlots > 0, "No enough objects of this type in inventory");
 
     // Iterate from end to minimize array shifts
-    for (uint256 i = numTypeSlots; i > 0 && remainingToRemove > 0; i--) {
+    for (uint256 i = numTypeSlots; i > 0 && remaining > 0; i--) {
       uint16 slot = InventoryTypeSlots._getItem(owner, objectType, i - 1);
       uint16 currentAmount = InventorySlot._getAmount(owner, slot);
 
-      if (currentAmount <= remainingToRemove) {
+      if (currentAmount <= remaining) {
         // Remove entire slot contents
-        remainingToRemove -= currentAmount;
+        remaining -= currentAmount;
         recycleSlot(owner, slot);
       } else {
         // Remove partial amount
-        uint16 newAmount = currentAmount - remainingToRemove;
+        uint16 newAmount = currentAmount - remaining;
         InventorySlot._setAmount(owner, slot, newAmount);
-        remainingToRemove = 0;
+        remaining = 0;
       }
     }
 
-    require(remainingToRemove == 0, "No objects of this type in inventory");
+    require(remaining == 0, "No enough objects of this type in inventory");
+  }
+
+  function removeAny(EntityId owner, ObjectTypeId objectType, uint16 amount) public {
+    require(amount > 0, "Amount must be greater than 0");
+
+    uint16 remaining = amount;
+
+    ObjectTypeId[] memory objectTypes = objectType.getObjectTypes();
+
+    for (uint256 i = 0; i < objectTypes.length && remaining > 0; i++) {
+      uint256 numSlots = InventoryTypeSlots._length(owner, objectTypes[i]);
+
+      uint16 available;
+      for (uint16 j = 0; j < numSlots && remaining > available; j++) {
+        uint16 slot = InventoryTypeSlots._getItem(owner, objectTypes[i], j);
+        available += InventorySlot._getAmount(owner, slot);
+      }
+
+      if (available > 0) {
+        available = available >= remaining ? remaining : available;
+        removeObject(owner, objectTypes[i], available);
+        remaining -= available;
+      }
+    }
+
+    require(remaining == 0, "No enough objects of this type in inventory");
   }
 
   function transfer(EntityId from, EntityId to, SlotAmount[] memory slotAmounts) public {
@@ -161,7 +187,6 @@ library InventoryUtils {
         recycleSlot(from, slot);
         addEntity(to, slotData.entityId);
       } else {
-        require(amount > 0, "Amount must be greater than 0");
         removeObject(from, slotData.objectType, amount);
         addObject(to, slotData.objectType, amount);
       }

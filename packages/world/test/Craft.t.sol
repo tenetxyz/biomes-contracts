@@ -235,7 +235,8 @@ contract CraftTest is DustTest {
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 0);
-    uint16[] memory toolSlots = InventoryTypeSlots.get(aliceEntityId, ObjectTypes.WoodenPick);
+    assertInventoryHasObject(aliceEntityId, outputTypes[0], 1);
+    uint16[] memory toolSlots = InventoryTypeSlots.get(aliceEntityId, outputTypes[0]);
     assertEq(toolSlots.length, 1, "should have 1 tool");
     EntityId toolEntityId = InventorySlot.getEntityId(aliceEntityId, toolSlots[0]);
     assertTrue(toolEntityId.exists(), "tool entity id should exist");
@@ -323,7 +324,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     vm.prank(alice);
-    vm.expectRevert("No objects of this type in inventory");
+    vm.expectRevert("No enough objects of this type in inventory");
     world.craft(aliceEntityId, recipeId);
 
     inputTypes = new ObjectTypeId[](1);
@@ -349,7 +350,7 @@ contract CraftTest is DustTest {
     EntityId stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Workbench);
 
     vm.prank(alice);
-    vm.expectRevert("No objects of this type in inventory");
+    vm.expectRevert("No enough objects of this type in inventory");
     world.craftWithStation(aliceEntityId, recipeId, stationEntityId);
   }
 

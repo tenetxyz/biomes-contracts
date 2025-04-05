@@ -539,8 +539,8 @@ contract MoveTest is DustTest {
     );
 
     // Verify inventory before move
-    assertEq(InventoryTypeSlots.length(aliceEntityId, ObjectTypes.Stone), 10, "Wrong initial stone count");
-    assertEq(InventoryTypeSlots.length(aliceEntityId, ObjectTypes.IronOre), 5, "Wrong initial silver ore count");
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.Stone, 10);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.IronOre, 5);
 
     // Get entity at the expected death location
     EntityId entityAtDeathLocation = ReversePosition.get(newCoords[fallHeight]);
@@ -555,22 +555,11 @@ contract MoveTest is DustTest {
     assertEq(MovablePosition.get(aliceEntityId), vec3(0, 0, 0), "Player position should be cleared after death");
 
     // Verify inventory was transferred to the entity at death location
-    assertEq(
-      InventoryTypeSlots.length(entityAtDeathLocation, ObjectTypes.Stone),
-      10,
-      "Stone inventory not correctly transferred to death location"
-    );
-    assertEq(
-      InventoryTypeSlots.length(entityAtDeathLocation, ObjectTypes.IronOre),
-      5,
-      "IronOre inventory not correctly transferred to death location"
-    );
+    assertInventoryHasObject(entityAtDeathLocation, ObjectTypes.Stone, 10);
+    assertInventoryHasObject(entityAtDeathLocation, ObjectTypes.IronOre, 5);
 
     // Player's inventory should be empty
-    assertEq(InventoryTypeSlots.length(aliceEntityId, ObjectTypes.Stone), 0, "Player should not have stone after death");
-    assertEq(
-      InventoryTypeSlots.length(aliceEntityId, ObjectTypes.IronOre), 0, "Player should not have silver ore after death"
-    );
+    assertEq(Inventory.length(aliceEntityId), 0, "Inventory not empty");
   }
 
   function testMoveHorizontalPathFatal() public {
@@ -615,24 +604,11 @@ contract MoveTest is DustTest {
     assertEq(MovablePosition.get(aliceEntityId), vec3(0, 0, 0), "Player position should be cleared after death");
 
     // Verify inventory was transferred to the entity at death location
-    assertEq(
-      InventoryTypeSlots.length(entityAtDeathLocation, ObjectTypes.IronOre),
-      8,
-      "IronOre inventory not correctly transferred to death location"
-    );
-    assertEq(
-      InventoryTypeSlots.length(entityAtDeathLocation, ObjectTypes.Diamond),
-      3,
-      "Diamond inventory not correctly transferred to death location"
-    );
+    assertInventoryHasObject(entityAtDeathLocation, ObjectTypes.IronOre, 8);
+    assertInventoryHasObject(entityAtDeathLocation, ObjectTypes.Diamond, 3);
 
     // Player's inventory should be empty
-    assertEq(
-      InventoryTypeSlots.length(aliceEntityId, ObjectTypes.IronOre), 0, "Player should not have silver ore after death"
-    );
-    assertEq(
-      InventoryTypeSlots.length(aliceEntityId, ObjectTypes.Diamond), 0, "Player should not have diamond after death"
-    );
+    assertEq(Inventory.length(aliceEntityId), 0, "Player inventory not empty");
   }
 
   function testMoveFailsIfNoPlayer() public {

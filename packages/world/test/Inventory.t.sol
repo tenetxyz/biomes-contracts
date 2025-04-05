@@ -46,7 +46,7 @@ import { Vec3, vec3 } from "../src/Vec3.sol";
 import { DustTest } from "./DustTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
-contract DropTest is DustTest {
+contract InventoryTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testDropTerrain() public {
@@ -64,7 +64,7 @@ contract DropTest is DustTest {
     vm.prank(alice);
     startGasReport("drop terrain");
     SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 1 });
+    drops[0] = SlotAmount({ slot: 0, amount: numToTransfer });
     world.drop(aliceEntityId, drops, dropCoord);
     endGasReport();
 
@@ -89,7 +89,7 @@ contract DropTest is DustTest {
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
     SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 1 });
+    drops[0] = SlotAmount({ slot: 0, amount: numToTransfer });
 
     vm.prank(alice);
     startGasReport("drop non-terrain");
@@ -167,7 +167,7 @@ contract DropTest is DustTest {
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
     SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 1 });
+    drops[0] = SlotAmount({ slot: 0, amount: numToTransfer });
 
     vm.prank(alice);
     world.drop(aliceEntityId, drops, dropCoord);
@@ -190,7 +190,7 @@ contract DropTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     SlotAmount[] memory drops = new SlotAmount[](1);
-    drops[0] = SlotAmount({ slot: 0, amount: 1 });
+    drops[0] = SlotAmount({ slot: 0, amount: numToPickup });
 
     vm.prank(alice);
     startGasReport("pickup");
@@ -381,7 +381,7 @@ contract DropTest is DustTest {
     drop[0] = SlotAmount({ slot: 0, amount: 1 });
 
     vm.prank(alice);
-    vm.expectRevert("No objects of this type in inventory");
+    vm.expectRevert("No enough objects of this type in inventory");
     world.drop(aliceEntityId, drop, dropCoord);
   }
 
@@ -395,7 +395,7 @@ contract DropTest is DustTest {
     pickup[0] = SlotAmount({ slot: 0, amount: 1 });
 
     vm.prank(alice);
-    vm.expectRevert("No objects of this type in inventory");
+    vm.expectRevert("No enough objects of this type in inventory");
     world.pickup(aliceEntityId, pickup, dropCoord);
   }
 

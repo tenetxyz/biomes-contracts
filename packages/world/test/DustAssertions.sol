@@ -80,7 +80,7 @@ abstract contract DustAssertions is MudTest, GasReporter {
 
     ObjectAmount[] memory oreAmounts = new ObjectAmount[](numOres);
     for (uint256 i = 0; i < ores.length; i++) {
-      uint256 count = InventoryTypeSlots.length(owner, ores[i]);
+      uint256 count = getObjectAmount(owner, ores[i]);
       if (count > 0) {
         oreAmounts[numOres - 1] = ObjectAmount(ores[i], uint16(count));
         numOres--;
