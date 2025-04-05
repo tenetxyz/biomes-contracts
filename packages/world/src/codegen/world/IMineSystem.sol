@@ -15,12 +15,16 @@ import { EntityId } from "../../EntityId.sol";
 interface IMineSystem {
   function getRandomOreType(Vec3 coord) external view returns (ObjectTypeId);
 
-  function mine(
+  function mineWithTool(
     EntityId caller,
     Vec3 coord,
-    EntityId tool,
+    uint16 toolSlot,
     bytes calldata extraData
-  ) external payable returns (EntityId);
+  ) external returns (EntityId);
+
+  function mine(EntityId caller, Vec3 coord, bytes calldata extraData) external returns (EntityId);
+
+  function mineUntilDestroyed(EntityId caller, Vec3 coord, uint16 toolSlot, bytes calldata extraData) external payable;
 
   function mineUntilDestroyed(EntityId caller, Vec3 coord, bytes calldata extraData) external payable;
 }

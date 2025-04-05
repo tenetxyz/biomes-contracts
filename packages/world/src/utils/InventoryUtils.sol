@@ -28,7 +28,7 @@ struct SlotAmount {
 
 library InventoryUtils {
   function useTool(EntityId owner, uint16 slot, uint128 useMassMax)
-    internal
+    public
     returns (uint128 massUsed, ObjectTypeId toolType)
   {
     EntityId tool = InventorySlot._getEntityId(owner, slot);
@@ -78,7 +78,7 @@ library InventoryUtils {
     addToTypeSlots(owner, objectType, slot);
   }
 
-  function addObject(EntityId owner, ObjectTypeId objectType, uint16 amount) internal {
+  function addObject(EntityId owner, ObjectTypeId objectType, uint16 amount) public {
     require(amount > 0, "Amount must be greater than 0");
     uint16 stackable = ObjectTypeMetadata._getStackable(objectType);
     require(stackable > 0, "Object type cannot be added to inventory");
@@ -120,7 +120,7 @@ library InventoryUtils {
     }
   }
 
-  function removeObject(EntityId owner, ObjectTypeId objectType, uint16 amount) internal {
+  function removeObject(EntityId owner, ObjectTypeId objectType, uint16 amount) public {
     require(amount > 0, "Amount must be greater than 0");
 
     uint16 remainingToRemove = amount;
@@ -146,10 +146,10 @@ library InventoryUtils {
       }
     }
 
-    require(remainingToRemove == 0, "Not enough objects to remove");
+    require(remainingToRemove == 0, "No objects of this type in inventory");
   }
 
-  function transfer(EntityId from, EntityId to, SlotAmount[] memory slotAmounts) internal {
+  function transfer(EntityId from, EntityId to, SlotAmount[] memory slotAmounts) public {
     require(from != to, "Cannot transfer to self");
 
     // Transfer tools
@@ -168,7 +168,7 @@ library InventoryUtils {
     }
   }
 
-  function transferAll(EntityId from, EntityId to) internal {
+  function transferAll(EntityId from, EntityId to) public {
     require(from != to, "Cannot transfer to self");
 
     // Occupied slots
@@ -271,7 +271,6 @@ library InventoryUtils {
   }
 
   // Marks a slot as empty - O(1)
-  // NOTE: this should be private but we need it for admin system
   function recycleSlot(EntityId owner, uint16 slot) private {
     // Get the object type before emptying the slot
     ObjectTypeId objectType = InventorySlot._getObjectType(owner, slot);

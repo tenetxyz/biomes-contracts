@@ -58,10 +58,12 @@ abstract contract DustAssertions is MudTest, GasReporter {
       return 0;
     }
 
-    uint256 total;
+    uint16 total;
     for (uint256 i; i < slots.length; i++) {
       total += InventorySlot.getAmount(owner, slots[i]);
     }
+
+    return total;
   }
 
   function inventoryHasObjectType(EntityId ownerEntityId, ObjectTypeId objectTypeId) internal view returns (bool) {

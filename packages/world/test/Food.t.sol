@@ -105,7 +105,7 @@ contract FoodTest is DustTest {
 
     // Try to eat more than available
     vm.prank(alice);
-    vm.expectRevert("Not enough objects in the inventory");
+    vm.expectRevert("No objects of this type in inventory");
     world.eat(aliceEntityId, foodType, foodAmount + 1);
   }
 

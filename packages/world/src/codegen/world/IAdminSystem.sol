@@ -17,9 +17,5 @@ interface IAdminSystem {
 
   function adminAddToolToInventory(EntityId owner, ObjectTypeId toolObjectTypeId) external returns (EntityId);
 
-  function adminRemoveFromInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) external;
-
-  function adminRemoveToolFromInventory(EntityId owner, EntityId tool) external;
-
   function adminTeleportPlayer(address playerAddress, Vec3 finalCoord) external;
 }

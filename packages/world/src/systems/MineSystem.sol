@@ -97,11 +97,18 @@ contract MineSystem is System {
     return ore;
   }
 
-  function mine(EntityId caller, Vec3 coord, uint16 toolSlot, bytes calldata extraData)
-    public
-    payable
+  function mineWithTool(EntityId caller, Vec3 coord, uint16 toolSlot, bytes calldata extraData)
+    external
     returns (EntityId)
   {
+    return _mine(caller, coord, toolSlot, extraData);
+  }
+
+  function mine(EntityId caller, Vec3 coord, bytes calldata extraData) external returns (EntityId) {
+    return _mine(caller, coord, type(uint16).max, extraData);
+  }
+
+  function _mine(EntityId caller, Vec3 coord, uint16 toolSlot, bytes calldata extraData) internal returns (EntityId) {
     caller.activate();
     caller.requireConnected(coord);
 
@@ -123,9 +130,9 @@ contract MineSystem is System {
     // First coord will be the base coord, the rest is relative schema coords
     Vec3[] memory coords = mineObjectTypeId.getRelativeCoords(baseCoord, Orientation._get(mined));
 
-    uint128 finalMass;
+    uint128 finalMass = MassReductionLib._processMassReduction(caller, mined, toolSlot);
+
     {
-      finalMass = MassReductionLib._processMassReduction(caller, mined, toolSlot);
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.Bed) {
           // If mining a bed with a sleeping player, kill the player
@@ -197,7 +204,16 @@ contract MineSystem is System {
     uint128 massLeft = 0;
     do {
       // TODO: factor out the mass reduction logic so it's cheaper to call
-      EntityId entityId = mine(caller, coord, toolSlot, extraData);
+      EntityId entityId = _mine(caller, coord, toolSlot, extraData);
+      massLeft = Mass._getMass(entityId);
+    } while (massLeft > 0);
+  }
+
+  function mineUntilDestroyed(EntityId caller, Vec3 coord, bytes calldata extraData) public payable {
+    uint128 massLeft = 0;
+    do {
+      // TODO: factor out the mass reduction logic so it's cheaper to call
+      EntityId entityId = _mine(caller, coord, type(uint16).max, extraData);
       massLeft = Mass._getMass(entityId);
     } while (massLeft > 0);
   }
@@ -252,7 +268,7 @@ library MassReductionLib {
   function _processMassReduction(EntityId caller, EntityId mined, uint16 toolSlot) public returns (uint128) {
     uint128 massLeft = Mass._getMass(mined);
     if (massLeft == 0) {
-      return massLeft;
+      return 0;
     }
 
     (uint128 toolMassReduction,) = InventoryUtils.useTool(caller, toolSlot, massLeft);

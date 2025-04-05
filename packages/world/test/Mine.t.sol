@@ -401,7 +401,7 @@ contract MineTest is DustTest {
     );
 
     vm.prank(alice);
-    vm.expectRevert("Inventory is full");
+    vm.expectRevert("All slots used");
     world.mine(aliceEntityId, mineCoord, "");
   }
 

@@ -43,6 +43,8 @@ import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ProgramId } from "../src/ProgramId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+
+import { SlotAmount } from "../src/utils/InventoryUtils.sol";
 import { Position } from "../src/utils/Vec3Storage.sol";
 
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
@@ -102,9 +104,12 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
     vm.prank(alice);
     startGasReport("transfer to chest");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, numToTransfer, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
@@ -124,9 +129,12 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
     vm.prank(alice);
     startGasReport("transfer tool to chest");
-    world.transferTool(aliceEntityId, aliceEntityId, chestEntityId, toolEntityId, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
     endGasReport();
 
     assertInventoryHasTool(chestEntityId, toolEntityId, 1);
@@ -146,9 +154,12 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
     vm.prank(alice);
     startGasReport("transfer from chest");
-    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, numToTransfer, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
@@ -169,12 +180,13 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 2);
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](2);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+    slotsToTransfer[1] = SlotAmount({ slot: 1, amount: 1 });
+
     vm.prank(alice);
     startGasReport("transfer tools from chest");
-    EntityId[] memory toolEntityIds = new EntityId[](2);
-    toolEntityIds[0] = toolEntityId1;
-    toolEntityIds[1] = toolEntityId2;
-    world.transferTools(aliceEntityId, chestEntityId, aliceEntityId, toolEntityIds, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
     endGasReport();
 
     assertInventoryHasTool(aliceEntityId, toolEntityId1, 2);
@@ -202,9 +214,12 @@ contract TransferTest is DustTest {
     TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
     vm.prank(alice);
-    vm.expectRevert("Inventory is full");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
+    vm.expectRevert("All slots used");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
   }
 
   function testTransferFromChestFailsIfPlayerFull() public {
@@ -224,9 +239,12 @@ contract TransferTest is DustTest {
     TestInventoryUtils.addObject(chestEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
     vm.prank(alice);
-    vm.expectRevert("Inventory is full");
-    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
+    vm.expectRevert("All slots used");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
   }
 
   function testTransferFailsIfInvalidObject() public {
@@ -241,9 +259,12 @@ contract TransferTest is DustTest {
 
     assertEq(ObjectTypeMetadata.getMaxInventorySlots(transferObjectTypeId), 0, "Max inventory slots is not 0");
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
     vm.prank(alice);
-    vm.expectRevert("Inventory is full");
-    world.transfer(aliceEntityId, aliceEntityId, nonChestEntityId, transferObjectTypeId, 1, "");
+    vm.expectRevert("All slots used");
+    world.transfer(aliceEntityId, aliceEntityId, nonChestEntityId, slotsToTransfer, "");
   }
 
   function testTransferFailsIfDoesntHaveBlock() public {
@@ -257,21 +278,30 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    vm.prank(alice);
-    vm.expectRevert("Not enough objects in the inventory");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 2, "");
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 2 });
 
     vm.prank(alice);
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
+    vm.expectRevert("No objects of this type in inventory");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
+
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
+    vm.prank(alice);
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
-    vm.prank(alice);
-    vm.expectRevert("Not enough objects in the inventory");
-    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 2, "");
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 2 });
 
     vm.prank(alice);
-    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
+    vm.expectRevert("No objects of this type in inventory");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
+
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
+    vm.prank(alice);
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
@@ -280,18 +310,20 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
-    vm.prank(alice);
-    vm.expectRevert("Entity does not own inventory item");
-    world.transferTool(aliceEntityId, aliceEntityId, chestEntityId, toolEntityId, "");
+    slotsToTransfer[0] = SlotAmount({ slot: 1, amount: 1 });
 
     vm.prank(alice);
-    world.transferTool(aliceEntityId, chestEntityId, aliceEntityId, toolEntityId, "");
+    vm.expectRevert("Entity does not own inventory item");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
+
+    vm.prank(alice);
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
-    world.transferTool(aliceEntityId, chestEntityId, aliceEntityId, toolEntityId, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
   }
 
   function testTransferFailsIfInvalidArgs() public {
@@ -303,19 +335,18 @@ contract TransferTest is DustTest {
     TestInventoryUtils.addObject(aliceEntityId, transferObjectTypeId, 1);
 
     TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenPick);
-    TestInventoryUtils.addEntity(aliceEntityId, ObjectTypes.WoodenAxe);
 
-    vm.prank(alice);
-    vm.expectRevert("Object type is not a block or item");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, ObjectTypes.WoodenPick, 1, "");
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 0 });
+
+    vm.expectRevert("Amount must be greater than 0");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
+
+    slotsToTransfer[0] = SlotAmount({ slot: 1, amount: 0 });
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 0, "");
-
-    vm.prank(alice);
-    vm.expectRevert("Must transfer at least one tool");
-    world.transferTools(aliceEntityId, aliceEntityId, chestEntityId, new EntityId[](0), "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
   }
 
   function testTransferFailsIfTooFar() public {
@@ -329,13 +360,16 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    vm.prank(alice);
-    vm.expectRevert("Entity is too far");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
 
     vm.prank(alice);
     vm.expectRevert("Entity is too far");
-    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
+
+    vm.prank(alice);
+    vm.expectRevert("Entity is too far");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, slotsToTransfer, "");
   }
 
   function testTransferFailsIfNoPlayer() public {
@@ -349,8 +383,11 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
     vm.expectRevert("Caller not allowed");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
   }
 
   function testTransferFailsIfSleeping() public {
@@ -366,9 +403,12 @@ contract TransferTest is DustTest {
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: 1 });
+
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
   }
 
   function testTransferFailsIfProgramReverts() public {
@@ -388,9 +428,12 @@ contract TransferTest is DustTest {
     attachTestProgram(chestEntityId, program, "namespace");
     program.setRevertOnTransfer(true);
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+
     vm.prank(alice);
     vm.expectRevert("Transfer not allowed by chest");
-    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, numToTransfer, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, slotsToTransfer, "");
   }
 
   function testTransferBetweenChests() public {
@@ -413,11 +456,11 @@ contract TransferTest is DustTest {
     TestChestProgram program = new TestChestProgram();
     attachTestProgram(chestEntityId, program, "namespace");
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+
     program.call(
-      world,
-      abi.encodeCall(
-        world.transfer, (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
-      )
+      world, abi.encodeCall(world.transfer, (chestEntityId, chestEntityId, otherChestEntityId, slotsToTransfer, ""))
     );
 
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -443,12 +486,12 @@ contract TransferTest is DustTest {
     TestChestProgram program = new TestChestProgram();
     attachTestProgram(chestEntityId, program, "namespace");
 
+    SlotAmount[] memory slotsToTransfer = new SlotAmount[](1);
+    slotsToTransfer[0] = SlotAmount({ slot: 0, amount: numToTransfer });
+
     vm.expectRevert("Entity is too far");
     program.call(
-      world,
-      abi.encodeCall(
-        world.transfer, (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
-      )
+      world, abi.encodeCall(world.transfer, (chestEntityId, chestEntityId, otherChestEntityId, slotsToTransfer, ""))
     );
   }
 }

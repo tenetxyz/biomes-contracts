@@ -323,7 +323,7 @@ contract CraftTest is DustTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     vm.prank(alice);
-    vm.expectRevert("Not enough objects in the inventory");
+    vm.expectRevert("No objects of this type in inventory");
     world.craft(aliceEntityId, recipeId);
 
     inputTypes = new ObjectTypeId[](1);
@@ -349,7 +349,7 @@ contract CraftTest is DustTest {
     EntityId stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Workbench);
 
     vm.prank(alice);
-    vm.expectRevert("Not enough objects in the inventory");
+    vm.expectRevert("No objects of this type in inventory");
     world.craftWithStation(aliceEntityId, recipeId, stationEntityId);
   }
 
@@ -433,7 +433,7 @@ contract CraftTest is DustTest {
     );
 
     vm.prank(alice);
-    vm.expectRevert("Inventory is full");
+    vm.expectRevert("All slots used");
     world.craft(aliceEntityId, recipeId);
   }
 

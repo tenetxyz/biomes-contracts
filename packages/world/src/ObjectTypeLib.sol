@@ -130,6 +130,8 @@ library ObjectTypeLib {
         return true;
       }
     }
+
+    return false;
   }
 
   function isFood(ObjectTypeId self) internal pure returns (bool) {
@@ -300,8 +302,7 @@ library ObjectTypeLib {
     }
 
     if (self == ObjectTypes.Chest) {
-      return sig == ITransferSystem.transfer.selector || sig == ITransferSystem.transferTool.selector
-        || sig == ITransferSystem.transferTools.selector || sig == IMachineSystem.fuelMachine.selector;
+      return sig == ITransferSystem.transfer.selector || sig == IMachineSystem.fuelMachine.selector;
     }
 
     return false;
